@@ -26,16 +26,22 @@ def discover_source_dataset() -> Path:
     """Locate the attached source snapshot without assuming its mount name."""
     if not INPUT_ROOT.is_dir():
         raise FileNotFoundError(f"Kaggle input root is unavailable: {INPUT_ROOT}")
+    possible_mounts = list(INPUT_ROOT.iterdir())
+    datasets_group = INPUT_ROOT / "datasets"
+    if datasets_group.is_dir():
+        possible_mounts.extend(datasets_group.glob("*/*"))
     candidates = sorted(
         path
-        for path in INPUT_ROOT.iterdir()
+        for path in possible_mounts
         if path.is_dir()
         and (path / "pyproject.toml").is_file()
         and (path / "src").is_dir()
         and (path / "configs" / "kaggle.yaml").is_file()
     )
     if len(candidates) != 1:
-        mounted = ", ".join(sorted(path.name for path in INPUT_ROOT.iterdir()))
+        mounted = ", ".join(
+            sorted(path.relative_to(INPUT_ROOT).as_posix() for path in possible_mounts)
+        )
         raise RuntimeError(
             "Expected exactly one attached repository source, found "
             f"{len(candidates)}. Mounted inputs: {mounted}"

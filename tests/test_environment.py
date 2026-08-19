@@ -92,6 +92,18 @@ def test_kaggle_mode_discovers_and_resolves_the_attached_mount(tmp_path: Path) -
     assert resolved["paths"]["train_dicom_root"] == str(competition / "train_series")
 
 
+def test_kaggle_mode_supports_grouped_competition_mounts(tmp_path: Path) -> None:
+    input_root = tmp_path / "input"
+    competition = _make_competition_mount(input_root / "competitions")
+
+    discovered = discover_competition_root(
+        input_root,
+        "rsna-knee-abnormality-detection",
+    )
+
+    assert discovered == competition.resolve()
+
+
 def test_kaggle_mode_fails_without_runtime_or_complete_mount(tmp_path: Path) -> None:
     config = _base_config(tmp_path)
     config["environment"] = {
@@ -134,4 +146,3 @@ def test_deterministic_study_sample_is_sorted_unique_and_bounded() -> None:
     assert deterministic_study_sample(studies, max_studies=2) == ["study-a", "study-b"]
     with pytest.raises(ValueError, match="between 1 and 20"):
         deterministic_study_sample(studies, max_studies=21)
-

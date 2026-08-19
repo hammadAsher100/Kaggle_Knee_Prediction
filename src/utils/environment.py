@@ -61,12 +61,19 @@ def discover_competition_root(
     root = Path(input_root).expanduser().resolve()
     if not root.is_dir():
         raise ConfigError(f"Kaggle input root is unavailable: {root}")
-    candidates = [root / competition_slug]
+    competition_group = root / "competitions"
+    candidates = [root / competition_slug, competition_group / competition_slug]
     candidates.extend(
         path
         for path in root.iterdir()
         if path.is_dir() and competition_slug in path.name and path not in candidates
     )
+    if competition_group.is_dir():
+        candidates.extend(
+            path
+            for path in competition_group.iterdir()
+            if path.is_dir() and competition_slug in path.name and path not in candidates
+        )
     valid = [
         candidate
         for candidate in candidates
