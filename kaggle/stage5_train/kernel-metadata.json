@@ -17,10 +17,6 @@
   "competition_sources": [
     "rsna-knee-abnormality-detection"
   ],
-  "kernel_sources": [
-    "hammadasher/rsna-knee-stage-2-aggregate",
-    "hammadasher/rsna-knee-stage-3-semantic",
-    "hammadasher/rsna-knee-stage-4-dinov2-features"
-  ],
+  "kernel_sources": [],
   "model_sources": []
 }
