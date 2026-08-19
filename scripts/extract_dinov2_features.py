@@ -64,12 +64,16 @@ def main() -> int:
     started = time.monotonic()
     part_paths: list[str] = []
     completed = 0
+    valid_stacks = 0
+    total_stacks = 0
     for part_index, start in enumerate(range(0, len(studies), args.studies_per_part)):
         part_path = output / f"part-{part_index:05d}.npz"
         part_paths.append(part_path.name)
         if part_path.is_file():
             with np.load(part_path, allow_pickle=False) as existing:
                 completed += len(existing["study_ids"])
+                valid_stacks += int(existing["slice_mask"].sum())
+                total_stacks += int(existing["slice_mask"].size)
             continue
         elapsed = time.monotonic() - started
         if elapsed >= args.max_runtime_seconds - args.safety_reserve_seconds:
@@ -119,6 +123,8 @@ def main() -> int:
             plane_ids=np.stack(planes),
         )
         completed += len(ids)
+        valid_stacks += int(np.stack(masks).sum())
+        total_stacks += int(np.stack(masks).size)
         print(
             json.dumps(
                 {
@@ -138,6 +144,7 @@ def main() -> int:
         "feature_dim": feature_dim,
         "slices_per_study": args.slices_per_series * args.max_series,
         "parts": part_paths[: (completed + args.studies_per_part - 1) // args.studies_per_part],
+        "valid_stack_fraction": valid_stacks / max(total_stacks, 1),
     }
     manifest_path = output / "manifest.json"
     temporary_manifest = manifest_path.with_suffix(".json.tmp")
@@ -145,6 +152,11 @@ def main() -> int:
     temporary_manifest.replace(manifest_path)
     if not complete:
         return 75
+    if manifest_payload["valid_stack_fraction"] < 0.9:
+        raise RuntimeError(
+            "More than 10% of selected 2.5D stacks failed DICOM pixel decoding; "
+            "check installed transfer-syntax handlers before training"
+        )
     archives = [np.load(output / name, allow_pickle=False) for name in manifest_payload["parts"]]
     try:
         _write_npz(
