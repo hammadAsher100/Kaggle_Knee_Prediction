@@ -17,6 +17,7 @@ if __package__ in {None, ""}:
 
 from src.data.dataset import FrozenFeatureDataset
 from src.inference.calibration import apply_multilabel_calibration
+from src.inference.ensemble import weighted_probability_average
 from src.models.model_factory import StudyFeatureClassifier
 from src.training.checkpoint import load_checkpoint
 
@@ -41,7 +42,7 @@ def main() -> int:
     if len(checkpoints) != 5:
         raise ValueError(f"Expected five fold checkpoints, found {len(checkpoints)}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    ensemble: np.ndarray | None = None
+    fold_outputs: list[np.ndarray] = []
     target_names: list[str] | None = None
     for path in checkpoints:
         payload = load_checkpoint(path)
@@ -62,9 +63,9 @@ def main() -> int:
                 )
                 fold_predictions.append(torch.sigmoid(output["logits"]).cpu().numpy())
         values = np.concatenate(fold_predictions)
-        ensemble = values if ensemble is None else ensemble + values
-    assert ensemble is not None and target_names is not None
-    ensemble /= len(checkpoints)
+        fold_outputs.append(values)
+    assert target_names is not None
+    ensemble = weighted_probability_average(fold_outputs)
     if args.calibration:
         parameters = json.loads(Path(args.calibration).read_text(encoding="utf-8"))
         ensemble = apply_multilabel_calibration(ensemble, target_names, parameters)
