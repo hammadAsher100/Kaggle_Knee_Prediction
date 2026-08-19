@@ -11,7 +11,8 @@
   "dataset_sources": [
     "hammadasher/rsna-knee-source",
     "hammadasher/rsna-knee-stage2-aggregate-artifacts",
-    "hammadasher/rsna-knee-semantic-labels"
+    "hammadasher/rsna-knee-semantic-labels",
+    "hammadasher/rsna-knee-stage4-features"
   ],
   "competition_sources": [
     "rsna-knee-abnormality-detection"
