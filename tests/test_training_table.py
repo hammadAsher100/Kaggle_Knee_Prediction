@@ -51,3 +51,15 @@ def test_grouping_falls_back_if_patient_ids_are_unusable() -> None:
     groups, source = choose_group_column(inventory)
     assert source == "StudyInstanceUID"
     assert groups.tolist() == ["a", "b"]
+
+
+def test_grouping_preserves_known_patients_with_missing_id_fallback() -> None:
+    inventory = pd.DataFrame(
+        {
+            "StudyInstanceUID": ["a", "b", "c", "d"],
+            "PatientID": ["shared", "shared", None, "unique"],
+        }
+    )
+    groups, source = choose_group_column(inventory)
+    assert source == "PatientID"
+    assert groups.tolist() == ["shared", "shared", "study::c", "unique"]

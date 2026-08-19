@@ -16,6 +16,7 @@ def choose_group_column(
     *,
     study_column: str = "StudyInstanceUID",
     patient_column: str = "PatientID",
+    min_groups: int = 2,
 ) -> tuple[pd.Series, str]:
     """Use recoverable patient groups; otherwise fall back explicitly to studies."""
     studies = inventory[study_column].astype(str)
@@ -24,8 +25,11 @@ def choose_group_column(
     patients = inventory[patient_column].astype("string").str.strip()
     usable = patients.notna() & patients.ne("")
     shared = patients[usable].duplicated(keep=False)
-    if usable.all() and shared.any():
-        return patients.astype(str), patient_column
+    if shared.any():
+        groups = patients.astype(object)
+        groups.loc[~usable] = "study::" + studies.loc[~usable]
+        if groups.astype(str).nunique() >= min_groups:
+            return groups.astype(str), patient_column
     return studies, study_column
 
 
@@ -92,7 +96,11 @@ def build_training_table(
         proxy_column = f"{target}__stratify"
         merged[proxy_column] = _prevalence_rank_proxy(weak, gold)
         proxy_columns.append(proxy_column)
-    groups, group_source = choose_group_column(merged, study_column=study_column)
+    groups, group_source = choose_group_column(
+        merged,
+        study_column=study_column,
+        min_groups=n_splits,
+    )
     merged["leakage_group"] = groups
     folded, quality = make_multilabel_group_folds(
         merged,
