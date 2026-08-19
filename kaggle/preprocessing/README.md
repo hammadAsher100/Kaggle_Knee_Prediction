@@ -1,8 +1,19 @@
 # Stage 2 Kaggle preprocessing
 
 Use Kaggle-mounted competition inputs instead of downloading the DICOM archive
-to the local D drive. Attach this repository to a Kaggle Notebook as a dataset
-or upload its files, keep internet disabled, and select the competition input.
+to the local D drive. The tracked `run.py` launcher extracts the private
+`hammadasher/rsna-knee-source` dataset, keeps internet disabled, validates the
+competition mount and dependencies, and runs the table audit.
+
+Publish the launcher with:
+
+```bash
+python -m kaggle kernels push -p kaggle/preprocessing
+```
+
+The kernel metadata attaches both the private source snapshot and the
+competition input. The setup kernel deliberately stops before the full DICOM
+scan so the integration can be verified quickly and cheaply.
 
 From the repository root in the notebook, run:
 
