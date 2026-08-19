@@ -66,7 +66,13 @@ def build_training_table(
             raise ValueError(f"{name} is missing {study_column}")
         if frame[study_column].duplicated().any():
             raise ValueError(f"{name} contains duplicate studies")
-    merged = train[[study_column, "PatientSex", *target_columns]].merge(
+    base_columns = [study_column, *target_columns]
+    if "PatientSex" in train:
+        base_columns.insert(1, "PatientSex")
+    training_base = train[base_columns].copy()
+    if "PatientSex" not in training_base:
+        training_base["PatientSex"] = pd.NA
+    merged = training_base.merge(
         semantic_labels,
         on=study_column,
         how="left",

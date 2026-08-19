@@ -311,3 +311,11 @@ The repository now validates local/Kaggle modes. Kaggle paths are discovered by
 shallow inspection inside the actual runtime and accepted only when the expected
 five CSV files and two series directories exist. No full local download is an
 allowed fallback.
+
+## Authenticated table addendum — 2026-08-19
+
+The actual training table contains 4,407 unique studies, complete reports, and
+the twelve target columns, with 58 observed gold values per target. Contrary to
+the supplied description, it does not contain `PatientSex`. That discrepancy is
+handled explicitly as unavailable metadata. The sample submission verifies the
+study identifier and target order already documented above.

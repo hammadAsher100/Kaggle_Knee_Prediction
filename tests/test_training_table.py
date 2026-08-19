@@ -63,3 +63,27 @@ def test_grouping_preserves_known_patients_with_missing_id_fallback() -> None:
     groups, source = choose_group_column(inventory)
     assert source == "PatientID"
     assert groups.tolist() == ["shared", "shared", "study::c", "unique"]
+
+
+def test_training_table_accepts_absent_patient_sex() -> None:
+    studies = [f"s{index}" for index in range(10)]
+    train = pd.DataFrame(
+        {"StudyInstanceUID": studies, "ACL": [1.0, 0.0] + [np.nan] * 8}
+    )
+    labels = pd.DataFrame(
+        {
+            "StudyInstanceUID": studies,
+            "ACL__semantic_probability": np.linspace(0.05, 0.95, 10),
+            "ACL__rule_probability": np.linspace(0.1, 0.9, 10),
+        }
+    )
+    inventory = pd.DataFrame({"StudyInstanceUID": studies})
+    folded, _ = build_training_table(
+        train,
+        labels,
+        inventory,
+        target_columns=["ACL"],
+        n_splits=2,
+        restarts=2,
+    )
+    assert folded["PatientSex"].isna().all()

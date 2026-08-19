@@ -98,3 +98,7 @@ The current report-language audit contains no raw report text. Its heuristic
 counts are: English 1,737; Spanish 681; Turkish 544; Greek 321; Croatian 285;
 German 256; Bulgarian 220; Dutch 151; French 81; unknown 131. These language
 counts are routing diagnostics, not clinical labels.
+
+The actual `train.csv` columns do not include `PatientSex`, despite its presence
+in the supplied dataset description. The training and subgroup-audit code treats
+that field as optional and records it as unavailable; it does not impute sex.
