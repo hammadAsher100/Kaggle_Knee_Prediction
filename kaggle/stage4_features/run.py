@@ -38,8 +38,17 @@ def main() -> int:
         ],
         "repository source",
     )
+    series_roots = [INPUT_ROOT / "kernels", INPUT_ROOT / "datasets"]
+    attached_aggregate = INPUT_ROOT / "rsna-knee-stage2-aggregate-artifacts"
+    if attached_aggregate.is_dir():
+        series_roots.append(attached_aggregate)
     series_manifest = _one(
-        list((INPUT_ROOT / "kernels").rglob("train_series_manifest.parquet")),
+        [
+            path
+            for root in series_roots
+            if root.is_dir()
+            for path in root.rglob("train_series_manifest.parquet")
+        ],
         "aggregated series manifest",
     )
     train_csv = _one(
