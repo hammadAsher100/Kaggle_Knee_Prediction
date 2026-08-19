@@ -13,6 +13,8 @@ paths:
   test_metadata_failures: artifacts/metadata/test_dicom_failures.jsonl
   train_study_inventory: artifacts/metadata/train_study_inventory.parquet
   test_study_inventory: artifacts/metadata/test_study_inventory.parquet
+  train_series_manifest: artifacts/metadata/train_series_manifest.parquet
+  test_series_manifest: artifacts/metadata/test_series_manifest.parquet
   train_metadata_audit: artifacts/metadata/train_metadata_audit.json
   test_metadata_audit: artifacts/metadata/test_metadata_audit.json
 

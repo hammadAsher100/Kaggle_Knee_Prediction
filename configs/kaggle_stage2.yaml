@@ -11,6 +11,8 @@ paths:
   test_metadata_failures: /kaggle/working/stage2_artifacts/test_dicom_failures.jsonl
   train_study_inventory: /kaggle/working/stage2_artifacts/train_study_inventory.parquet
   test_study_inventory: /kaggle/working/stage2_artifacts/test_study_inventory.parquet
+  train_series_manifest: /kaggle/working/stage2_artifacts/train_series_manifest.parquet
+  test_series_manifest: /kaggle/working/stage2_artifacts/test_series_manifest.parquet
   train_metadata_audit: /kaggle/working/stage2_artifacts/train_metadata_audit.json
   test_metadata_audit: /kaggle/working/stage2_artifacts/test_metadata_audit.json
 
