@@ -128,6 +128,14 @@ def main() -> int:
         "--audit",
         str(output / "calibration_audit.json"),
     )
+    run(
+        repository,
+        "scripts/analyze_oof.py",
+        "--oof",
+        str(output / "oof.parquet"),
+        "--output",
+        str(output / "oof_analysis.json"),
+    )
     return 0
 
 

@@ -102,16 +102,16 @@ def build_training_table(
         min_groups=n_splits,
     )
     merged["leakage_group"] = groups
+    gold_columns = [f"{target}__gold" for target in target_columns]
     folded, quality = make_multilabel_group_folds(
         merged,
         group_column="leakage_group",
-        target_columns=proxy_columns,
+        target_columns=[*proxy_columns, *gold_columns],
         n_splits=n_splits,
         seed=seed,
         restarts=restarts,
     )
     nested_blends: dict[str, Any] = {}
-    gold_columns = [f"{target}__gold" for target in target_columns]
     for validation_fold in range(n_splits):
         development = folded["fold"].ne(validation_fold)
         truth = folded.loc[development, gold_columns].to_numpy(float)
