@@ -45,7 +45,15 @@ def _artifact_roots() -> list[Path]:
         "rsna-knee-semantic-labels",
         "rsna-knee-stage4-features",
     )
-    return [INPUT_ROOT / name for name in names if (INPUT_ROOT / name).is_dir()]
+    roots = [INPUT_ROOT / name for name in names if (INPUT_ROOT / name).is_dir()]
+    datasets = INPUT_ROOT / "datasets"
+    if datasets.is_dir():
+        roots.extend(
+            path
+            for path in datasets.glob("*/*")
+            if path.is_dir() and path.name in names
+        )
+    return roots
 
 
 def main() -> int:
