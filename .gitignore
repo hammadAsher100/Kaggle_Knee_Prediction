@@ -56,4 +56,5 @@ artifacts/checkpoints/*
 artifacts/predictions/*
 artifacts/logs/*
 artifacts/local/*
+artifacts/stage4_smoke/*
 !artifacts/**/.gitkeep
