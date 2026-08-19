@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 from zipfile import ZipFile
 
-SOURCE_DATASET = Path("/kaggle/input/rsna-knee-source")
+INPUT_ROOT = Path("/kaggle/input")
 WORKSPACE = Path("/kaggle/working/rsna-knee")
 REQUIRED_MODULES = ("yaml", "numpy", "pandas", "pyarrow", "pydicom")
 
@@ -22,21 +22,39 @@ def run(*arguments: str) -> None:
     subprocess.run(command, cwd=WORKSPACE, check=True)
 
 
-def main() -> int:
-    if not SOURCE_DATASET.is_dir():
-        raise FileNotFoundError(
-            "The private source dataset is not mounted at " f"{SOURCE_DATASET}"
+def discover_source_dataset() -> Path:
+    """Locate the attached source snapshot without assuming its mount name."""
+    if not INPUT_ROOT.is_dir():
+        raise FileNotFoundError(f"Kaggle input root is unavailable: {INPUT_ROOT}")
+    candidates = sorted(
+        path
+        for path in INPUT_ROOT.iterdir()
+        if path.is_dir()
+        and (path / "pyproject.toml").is_file()
+        and (path / "src").is_dir()
+        and (path / "configs" / "kaggle.yaml").is_file()
+    )
+    if len(candidates) != 1:
+        mounted = ", ".join(sorted(path.name for path in INPUT_ROOT.iterdir()))
+        raise RuntimeError(
+            "Expected exactly one attached repository source, found "
+            f"{len(candidates)}. Mounted inputs: {mounted}"
         )
+    return candidates[0]
+
+
+def main() -> int:
+    source_dataset = discover_source_dataset()
 
     WORKSPACE.mkdir(parents=True, exist_ok=True)
-    if (SOURCE_DATASET / "pyproject.toml").is_file():
-        shutil.copytree(SOURCE_DATASET, WORKSPACE, dirs_exist_ok=True)
+    if (source_dataset / "pyproject.toml").is_file():
+        shutil.copytree(source_dataset, WORKSPACE, dirs_exist_ok=True)
     else:
-        archives = sorted(SOURCE_DATASET.glob("*.zip"))
+        archives = sorted(source_dataset.glob("*.zip"))
         if len(archives) != 1:
             raise RuntimeError(
                 "Expected an unpacked repository or exactly one archive in "
-                f"{SOURCE_DATASET}, found {len(archives)} archives"
+                f"{source_dataset}, found {len(archives)} archives"
             )
         with ZipFile(archives[0]) as archive:
             archive.extractall(WORKSPACE)
