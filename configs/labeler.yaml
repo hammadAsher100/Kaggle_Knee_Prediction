@@ -1,5 +1,5 @@
 labeler:
-  version: null
+  version: rules_v1
   target_columns:
     - ACL
     - MCL
@@ -13,10 +13,20 @@ labeler:
     - Baker's
     - Contusion
     - Fracture
-  languages: []
+  languages:
+    - en
+    - es
+    - nl
+    - fr
+    - bg
+    - tr
+    - el
+    - hr
+    - de
+    - unknown
   unicode_normalization: NFKC
-  positive_threshold: null
-  negative_threshold: null
+  positive_threshold: 0.9
+  negative_threshold: 0.1
   mask_uncertain: true
   allow_hosted_services: false
   output_path: artifacts/labels/report_labels.parquet
