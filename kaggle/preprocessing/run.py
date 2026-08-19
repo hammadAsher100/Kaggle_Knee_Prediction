@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -27,16 +28,18 @@ def main() -> int:
             "The private source dataset is not mounted at " f"{SOURCE_DATASET}"
         )
 
-    archives = sorted(SOURCE_DATASET.glob("*.zip"))
-    if len(archives) != 1:
-        raise RuntimeError(
-            "Expected exactly one repository archive in "
-            f"{SOURCE_DATASET}, found {len(archives)}"
-        )
-
     WORKSPACE.mkdir(parents=True, exist_ok=True)
-    with ZipFile(archives[0]) as archive:
-        archive.extractall(WORKSPACE)
+    if (SOURCE_DATASET / "pyproject.toml").is_file():
+        shutil.copytree(SOURCE_DATASET, WORKSPACE, dirs_exist_ok=True)
+    else:
+        archives = sorted(SOURCE_DATASET.glob("*.zip"))
+        if len(archives) != 1:
+            raise RuntimeError(
+                "Expected an unpacked repository or exactly one archive in "
+                f"{SOURCE_DATASET}, found {len(archives)} archives"
+            )
+        with ZipFile(archives[0]) as archive:
+            archive.extractall(WORKSPACE)
 
     os.chdir(WORKSPACE)
     sys.path.insert(0, str(WORKSPACE))
