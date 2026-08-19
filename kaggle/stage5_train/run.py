@@ -50,7 +50,7 @@ def _artifact_roots() -> list[Path]:
     if datasets.is_dir():
         roots.extend(
             path
-            for path in datasets.glob("*/*")
+            for path in datasets.rglob("*")
             if path.is_dir() and path.name in names
         )
     return roots
