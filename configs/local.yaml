@@ -1,0 +1,21 @@
+# Local laptop overlay: code, synthetic tests, and tiny representative samples only.
+environment:
+  mode: local
+  require_kaggle_runtime: false
+  internet_enabled: true
+
+data:
+  use_sample: true
+  max_studies: 10
+
+paths:
+  competition_root: null
+  working_dir: artifacts/local
+  data_root: data/sample
+  artifact_root: artifacts
+  log_dir: artifacts/logs
+
+runtime:
+  max_seconds: 3600
+  safety_reserve_seconds: 300
+

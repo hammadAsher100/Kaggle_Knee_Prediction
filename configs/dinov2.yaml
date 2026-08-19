@@ -1,0 +1,20 @@
+model:
+  family: dinov2
+  variant: dinov2_vits14
+  pretrained_weights: null
+  image_size: 224
+  pooling: mean
+  target_columns:
+    - ACL
+    - MCL
+    - Medial Meniscus
+    - Lateral Meniscus
+    - Medial OA
+    - Lateral OA
+    - PF OA
+    - Effusion
+    - Synovitis
+    - Baker's
+    - Contusion
+    - Fracture
+  offline_only: true

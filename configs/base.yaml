@@ -1,0 +1,37 @@
+project:
+  name: rsna-knee-abnormality
+  stage: 1
+
+environment:
+  mode: local
+  competition_slug: rsna-knee-abnormality-detection
+  require_kaggle_runtime: false
+  internet_enabled: false
+
+data:
+  use_sample: true
+  max_studies: 10
+
+seed: 20260812
+deterministic: true
+
+paths:
+  data_root: data
+  artifact_root: artifacts
+  log_dir: artifacts/logs
+
+logging:
+  level: INFO
+  json: true
+  file: null
+
+runtime:
+  max_seconds: 32400
+  safety_reserve_seconds: 1200
+  operation_ema_alpha: 0.25
+
+experiment:
+  id: null
+  hypothesis: null
+  primary_change: null
+  expected_effect: null

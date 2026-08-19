@@ -1,0 +1,2 @@
+experiment_id,timestamp_utc,git_commit,config_hash,hypothesis,primary_change,expected_effect,oof_macro_auc,per_target_auc_json,public_lb_score,lb_minus_oof,inference_runtime_seconds,peak_vram_mb,model_ensemble,decision,notes
+

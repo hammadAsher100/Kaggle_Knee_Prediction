@@ -1,0 +1,12 @@
+cv:
+  n_splits: 5
+  seed: 20260812
+  grouping_key: auto
+  strategy: multilabel_stratified_group
+  shuffle: true
+  restarts: 64
+  require_patient_disjoint: true
+  require_study_disjoint: true
+  output_path: artifacts/folds/folds.parquet
+  audit_path: artifacts/folds/fold_audit.json
+  subgroup_columns: []

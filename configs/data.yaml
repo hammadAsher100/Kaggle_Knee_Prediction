@@ -1,0 +1,99 @@
+paths:
+  train_csv: null
+  sample_submission_csv: null
+  train_dicom_root: null
+  test_dicom_root: null
+  report_files: []
+  metadata_files: []
+  rules_documents: []
+  table_audit_json: artifacts/metadata/table_audit.json
+  train_metadata_output: artifacts/metadata/train_dicom_metadata.parquet
+  test_metadata_output: artifacts/metadata/test_dicom_metadata.parquet
+  train_metadata_failures: artifacts/metadata/train_dicom_failures.jsonl
+  test_metadata_failures: artifacts/metadata/test_dicom_failures.jsonl
+  train_study_inventory: artifacts/metadata/train_study_inventory.parquet
+  test_study_inventory: artifacts/metadata/test_study_inventory.parquet
+  train_metadata_audit: artifacts/metadata/train_metadata_audit.json
+  test_metadata_audit: artifacts/metadata/test_metadata_audit.json
+
+schema:
+  row_identifier: StudyInstanceUID
+  study_identifier: StudyInstanceUID
+  patient_identifier: null
+  institution_identifier: null
+  report_text_column: Report
+  target_columns:
+    - ACL
+    - MCL
+    - Medial Meniscus
+    - Lateral Meniscus
+    - Medial OA
+    - Lateral OA
+    - PF OA
+    - Effusion
+    - Synovitis
+    - Baker's
+    - Contusion
+    - Fracture
+  patient_sex_column: PatientSex
+  series_identifier: SeriesInstanceUID
+  series_descriptor_columns:
+    - Fluid_Sensitive
+    - Fat_Suppression
+    - Anatomical_Plane
+
+submission:
+  filename: submission.csv
+  columns:
+    - StudyInstanceUID
+    - ACL
+    - MCL
+    - Medial Meniscus
+    - Lateral Meniscus
+    - Medial OA
+    - Lateral OA
+    - PF OA
+    - Effusion
+    - Synovitis
+    - Baker's
+    - Contusion
+    - Fracture
+
+hierarchy:
+  train: train_series/<StudyInstanceUID>/<SeriesInstanceUID>/<SOPInstanceUID>.dcm
+  test: test_series/<StudyInstanceUID>/<SeriesInstanceUID>/<SOPInstanceUID>.dcm
+
+metadata:
+  stop_before_pixels: true
+  tags:
+    - PatientID
+    - AccessionNumber
+    - StudyInstanceUID
+    - SeriesInstanceUID
+    - SOPInstanceUID
+    - SeriesDescription
+    - ProtocolName
+    - SequenceName
+    - ImageOrientationPatient
+    - ImagePositionPatient
+    - InstanceNumber
+    - PixelSpacing
+    - SliceThickness
+    - SpacingBetweenSlices
+    - Rows
+    - Columns
+    - PatientPosition
+    - Laterality
+    - ImageLaterality
+    - Manufacturer
+    - ManufacturerModelName
+    - MagneticFieldStrength
+    - EchoTime
+    - RepetitionTime
+    - PhotometricInterpretation
+    - BitsAllocated
+    - BitsStored
+    - PixelRepresentation
+    - RescaleSlope
+    - RescaleIntercept
+    - PixelPaddingValue

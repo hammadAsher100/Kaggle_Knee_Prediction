@@ -1,0 +1,37 @@
+model:
+  family: baseline_2p5d
+  backbone: efficientnet_b0
+  pretrained: true
+  input_channels: 3
+  image_size: 224
+  pooling: mean
+  target_columns:
+    - ACL
+    - MCL
+    - Medial Meniscus
+    - Lateral Meniscus
+    - Medial OA
+    - Lateral OA
+    - PF OA
+    - Effusion
+    - Synovitis
+    - Baker's
+    - Contusion
+    - Fracture
+
+sampling:
+  strategy_train: random_uniform
+  strategy_valid: uniform
+  slices_per_series: 16
+  neighborhood_offsets: [-1, 0, 1]
+
+training:
+  epochs: 10
+  batch_size: 8
+  gradient_accumulation_steps: 1
+  amp: true
+  loss: bce_with_logits
+  learning_rate: 0.0003
+  weight_decay: 0.0001
+  num_workers: 4
+  resume_checkpoint: null

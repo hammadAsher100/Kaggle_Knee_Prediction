@@ -1,0 +1,7 @@
+ensemble:
+  method: equal_average
+  prediction_files: []
+  weights: []
+  optimize_on_oof_only: true
+  correlation_report: artifacts/oof/ensemble_correlations.csv
+

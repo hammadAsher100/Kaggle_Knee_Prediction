@@ -1,0 +1,22 @@
+labeler:
+  version: null
+  target_columns:
+    - ACL
+    - MCL
+    - Medial Meniscus
+    - Lateral Meniscus
+    - Medial OA
+    - Lateral OA
+    - PF OA
+    - Effusion
+    - Synovitis
+    - Baker's
+    - Contusion
+    - Fracture
+  languages: []
+  unicode_normalization: NFKC
+  positive_threshold: null
+  negative_threshold: null
+  mask_uncertain: true
+  allow_hosted_services: false
+  output_path: artifacts/labels/report_labels.parquet

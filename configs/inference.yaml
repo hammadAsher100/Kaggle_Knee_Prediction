@@ -1,0 +1,13 @@
+inference:
+  checkpoint_paths: []
+  batch_size: 8
+  num_workers: 4
+  amp: true
+  deterministic: true
+  tta:
+    enabled: false
+    transforms: []
+  offline_only: true
+  output_predictions: artifacts/predictions/test_predictions.parquet
+  output_submission: submission.csv
+

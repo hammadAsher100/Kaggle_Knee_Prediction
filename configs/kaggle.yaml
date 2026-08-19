@@ -1,0 +1,24 @@
+# Kaggle overlay. Competition paths are discovered and validated at runtime.
+environment:
+  mode: kaggle
+  competition_slug: rsna-knee-abnormality-detection
+  require_kaggle_runtime: true
+  internet_enabled: false
+  expected_gpu_class: T4
+
+data:
+  use_sample: false
+  max_studies: null
+
+paths:
+  kaggle_input_root: /kaggle/input
+  competition_root: null
+  working_dir: /kaggle/working
+  artifact_root: /kaggle/working/artifacts
+  log_dir: /kaggle/working/artifacts/logs
+
+runtime:
+  # Verified competition code-notebook maximum: 9 hours.
+  max_seconds: 32400
+  safety_reserve_seconds: 1200
+
