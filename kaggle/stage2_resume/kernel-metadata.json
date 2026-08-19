@@ -1,5 +1,5 @@
 {
-  "id": "hammadasher/rsna-knee-stage-2-resume",
+  "id": "hammadasher/rsna-knee-stage-2-metadata-resume",
   "title": "RSNA Knee Stage 2 Metadata Resume",
   "code_file": "run.py",
   "language": "python",
@@ -8,7 +8,8 @@
   "enable_gpu": false,
   "enable_internet": false,
   "dataset_sources": [
-    "hammadasher/rsna-knee-source"
+    "hammadasher/rsna-knee-source",
+    "hammadasher/rsna-knee-stage2-artifacts"
   ],
   "competition_sources": [
     "rsna-knee-abnormality-detection"
