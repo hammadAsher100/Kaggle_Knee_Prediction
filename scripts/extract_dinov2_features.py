@@ -34,6 +34,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--num-workers", type=int, default=2)
     parser.add_argument("--max-runtime-seconds", type=float, default=32400)
     parser.add_argument("--safety-reserve-seconds", type=float, default=1200)
+    parser.add_argument("--minimum-valid-stack-fraction", type=float, default=0.9)
     return parser.parse_args()
 
 
@@ -50,6 +51,8 @@ def _write_npz(path: Path, **arrays) -> None:
 
 def main() -> int:
     args = parse_args()
+    if not 0 <= args.minimum_valid_stack_fraction <= 1:
+        raise ValueError("minimum valid stack fraction must lie in [0, 1]")
     os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     from transformers import AutoModel
@@ -152,7 +155,7 @@ def main() -> int:
     temporary_manifest.replace(manifest_path)
     if not complete:
         return 75
-    if manifest_payload["valid_stack_fraction"] < 0.9:
+    if manifest_payload["valid_stack_fraction"] < args.minimum_valid_stack_fraction:
         raise RuntimeError(
             "More than 10% of selected 2.5D stacks failed DICOM pixel decoding; "
             "check installed transfer-syntax handlers before training"

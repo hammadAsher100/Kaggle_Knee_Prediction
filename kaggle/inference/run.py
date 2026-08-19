@@ -7,6 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import yaml
+
 INPUT_ROOT = Path("/kaggle/input")
 
 
@@ -72,6 +74,8 @@ def main() -> int:
         [path.parent for path in (INPUT_ROOT / "kernels").rglob("fold-0.pt")],
         "cross-validation checkpoint directory",
     )
+    config = yaml.safe_load((repository / "configs" / "frozen_dinov2.yaml").read_text())
+    features = config["features"]
     output = Path("/kaggle/working/inference_artifacts")
     output.mkdir(parents=True, exist_ok=True)
     manifest = output / "test_series_manifest.parquet"
@@ -101,13 +105,17 @@ def main() -> int:
         "--output-dir",
         str(output / "test_features"),
         "--slices-per-series",
-        "4",
+        str(features["slices_per_series"]),
         "--max-series",
-        "3",
+        str(features["max_series"]),
+        "--image-size",
+        str(features["image_size"]),
         "--studies-per-part",
-        "50",
+        str(features["studies_per_part"]),
         "--num-workers",
-        "4",
+        str(features["num_workers"]),
+        "--minimum-valid-stack-fraction",
+        str(features["minimum_valid_stack_fraction"]),
     )
     predictions = output / "test_predictions.parquet"
     run(

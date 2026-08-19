@@ -15,6 +15,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--n-splits", type=int, default=5)
     parser.add_argument("--epochs", type=int, default=40)
     parser.add_argument("--batch-size", type=int, default=64)
+    parser.add_argument("--learning-rate", type=float, default=3e-4)
+    parser.add_argument("--weight-decay", type=float, default=1e-4)
+    parser.add_argument("--gold-weight", type=float, default=4.0)
+    parser.add_argument("--patience", type=int, default=8)
     parser.add_argument("--seed", type=int, default=20260812)
     return parser.parse_args()
 
@@ -37,6 +41,14 @@ def main() -> int:
             str(args.epochs),
             "--batch-size",
             str(args.batch_size),
+            "--learning-rate",
+            str(args.learning_rate),
+            "--weight-decay",
+            str(args.weight_decay),
+            "--gold-weight",
+            str(args.gold_weight),
+            "--patience",
+            str(args.patience),
             "--seed",
             str(args.seed),
         ]

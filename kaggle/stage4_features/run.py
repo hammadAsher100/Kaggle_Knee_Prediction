@@ -7,6 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import yaml
+
 INPUT_ROOT = Path("/kaggle/input")
 
 
@@ -56,6 +58,8 @@ def main() -> int:
         ],
         "DINOv2 model",
     )
+    config = yaml.safe_load((repository / "configs" / "frozen_dinov2.yaml").read_text())
+    features = config["features"]
     command = [
         sys.executable,
         "scripts/extract_dinov2_features.py",
@@ -70,13 +74,17 @@ def main() -> int:
         "--output-dir",
         "/kaggle/working/stage4_features",
         "--slices-per-series",
-        "4",
+        str(features["slices_per_series"]),
         "--max-series",
-        "3",
+        str(features["max_series"]),
+        "--image-size",
+        str(features["image_size"]),
         "--studies-per-part",
-        "50",
+        str(features["studies_per_part"]),
         "--num-workers",
-        "4",
+        str(features["num_workers"]),
+        "--minimum-valid-stack-fraction",
+        str(features["minimum_valid_stack_fraction"]),
     ]
     completed = subprocess.run(
         command,

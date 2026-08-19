@@ -7,6 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import yaml
+
 INPUT_ROOT = Path("/kaggle/input")
 
 
@@ -65,6 +67,8 @@ def main() -> int:
         list((INPUT_ROOT / "kernels").rglob("features.npz")),
         "DINOv2 features",
     )
+    config = yaml.safe_load((repository / "configs" / "frozen_dinov2.yaml").read_text())
+    training = config["training"]
     output = Path("/kaggle/working/stage5_cv")
     output.mkdir(parents=True, exist_ok=True)
     training_table = output / "training_table.parquet"
@@ -92,11 +96,21 @@ def main() -> int:
         "--output-dir",
         str(output),
         "--n-splits",
-        "5",
+        str(training["n_splits"]),
         "--epochs",
-        "40",
+        str(training["epochs"]),
         "--batch-size",
-        "64",
+        str(training["batch_size"]),
+        "--learning-rate",
+        str(training["learning_rate"]),
+        "--weight-decay",
+        str(training["weight_decay"]),
+        "--gold-weight",
+        str(training["gold_weight"]),
+        "--patience",
+        str(training["patience"]),
+        "--seed",
+        str(training["seed"]),
     )
     run(
         repository,
