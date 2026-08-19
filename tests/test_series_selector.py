@@ -1,10 +1,25 @@
-"""Stage 4 series selector test skeleton."""
+"""Tests for auditable series selection."""
 
-import pytest
-
-pytestmark = pytest.mark.skip(reason="Series rules require observed DICOM metadata from Stage 2")
+from src.data.series_selector import categorize_series, select_series
 
 
 def test_series_categorization_contract() -> None:
-    """Will cover plane, sequence, fat suppression, other, and unknown classes."""
-
+    row = {
+        "SeriesInstanceUID": "sag",
+        "Anatomical_Plane": "Sagittal",
+        "Fluid_Sensitive": 1,
+        "Fat_Suppression": 1,
+        "slice_count": 30,
+        "geometry_reliably_orderable": True,
+    }
+    assert categorize_series(row) == "sagittal_fluid_fs"
+    selected = select_series(
+        [
+            row,
+            {**row, "SeriesInstanceUID": "cor", "Anatomical_Plane": "Coronal"},
+            {**row, "SeriesInstanceUID": "ax", "Anatomical_Plane": "Axial"},
+            {**row, "SeriesInstanceUID": "extra", "slice_count": 1},
+        ],
+        max_series=3,
+    )
+    assert {item.series_uid for item in selected} == {"sag", "cor", "ax"}

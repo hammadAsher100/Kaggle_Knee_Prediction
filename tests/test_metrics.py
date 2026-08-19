@@ -1,9 +1,14 @@
-"""Stage 5 metric test skeleton."""
+"""Tests for official-style multilabel ROC AUC."""
 
-import pytest
+import numpy as np
 
-pytestmark = pytest.mark.skip(reason="Metric implementation is scheduled for Stage 5")
+from src.training.metrics import multilabel_roc_auc
 
 
 def test_macro_auc_all_negative_target_contract() -> None:
-    """Will define the official behavior for targets absent from a validation fold."""
+    truth = np.asarray([[0, 0], [1, 0], [np.nan, 0]], dtype=float)
+    probabilities = np.asarray([[0.1, 0.3], [0.9, 0.2], [0.5, 0.1]])
+    result = multilabel_roc_auc(truth, probabilities, ["variable", "all_negative"])
+    assert result.per_target == {"variable": 1.0, "all_negative": None}
+    assert result.macro_auc == 1.0
+    assert result.valid_target_count == 1
