@@ -75,3 +75,7 @@ def set_global_seed(
         cuda=cuda_seeded,
     )
 
+
+def seed_everything(seed: int, *, deterministic: bool = True) -> SeedReport:
+    """Backward-compatible wrapper used by the training entry points."""
+    return set_global_seed(seed, deterministic=deterministic)
