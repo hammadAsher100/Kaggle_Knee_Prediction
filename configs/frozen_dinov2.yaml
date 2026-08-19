@@ -17,6 +17,23 @@ training:
   gold_weight: 4.0
   patience: 8
   seed: 20260812
+  stop_macro_auc: 0.953
+  experiments:
+    - id: attention_w2_d01_h64
+      gold_weight: 2.0
+      dropout: 0.1
+      attention_hidden_dim: 64
+      seed: 20260812
+    - id: attention_w4_d02_h128
+      gold_weight: 4.0
+      dropout: 0.2
+      attention_hidden_dim: 128
+      seed: 20260829
+    - id: attention_w8_d10_h256
+      gold_weight: 8.0
+      dropout: 0.1
+      attention_hidden_dim: 256
+      seed: 20260846
 
 calibration:
   method: positive_slope_platt

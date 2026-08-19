@@ -71,7 +71,11 @@ def main() -> int:
         "DINOv2 model",
     )
     checkpoint_dir = _one(
-        [path.parent for path in (INPUT_ROOT / "kernels").rglob("fold-0.pt")],
+        [
+            path.parent
+            for path in (INPUT_ROOT / "kernels").rglob("best_experiment.json")
+            if (path.parent / "fold-0.pt").is_file()
+        ],
         "cross-validation checkpoint directory",
     )
     config = yaml.safe_load((repository / "configs" / "frozen_dinov2.yaml").read_text())

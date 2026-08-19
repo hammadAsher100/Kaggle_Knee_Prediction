@@ -85,12 +85,13 @@ class StudyFeatureClassifier(nn.Module):
         target_names: Sequence[str],
         *,
         plane_embedding_dim: int = 16,
+        attention_hidden_dim: int = 128,
         dropout: float = 0.2,
     ) -> None:
         super().__init__()
         self.plane_embedding = nn.Embedding(4, plane_embedding_dim)
         combined_dim = feature_dim + plane_embedding_dim
-        self.pool = MaskedAttentionPooling(combined_dim, hidden_dim=128)
+        self.pool = MaskedAttentionPooling(combined_dim, hidden_dim=attention_hidden_dim)
         self.head = MultiTaskHead(combined_dim, target_names, dropout=dropout)
 
     def forward(

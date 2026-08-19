@@ -19,6 +19,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--weight-decay", type=float, default=1e-4)
     parser.add_argument("--gold-weight", type=float, default=4.0)
     parser.add_argument("--patience", type=int, default=8)
+    parser.add_argument("--dropout", type=float, default=0.2)
+    parser.add_argument("--attention-hidden-dim", type=int, default=128)
     parser.add_argument("--seed", type=int, default=20260812)
     return parser.parse_args()
 
@@ -49,6 +51,10 @@ def main() -> int:
             str(args.gold_weight),
             "--patience",
             str(args.patience),
+            "--dropout",
+            str(args.dropout),
+            "--attention-hidden-dim",
+            str(args.attention_hidden_dim),
             "--seed",
             str(args.seed),
         ]

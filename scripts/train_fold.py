@@ -52,6 +52,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--weight-decay", type=float, default=1e-4)
     parser.add_argument("--gold-weight", type=float, default=4.0)
     parser.add_argument("--patience", type=int, default=8)
+    parser.add_argument("--dropout", type=float, default=0.2)
+    parser.add_argument("--attention-hidden-dim", type=int, default=128)
     parser.add_argument("--seed", type=int, default=20260812)
     parser.add_argument("--num-workers", type=int, default=2)
     return parser.parse_args()
@@ -88,7 +90,12 @@ def main() -> int:
     )
     feature_dim = int(train_dataset.features.shape[-1])
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = StudyFeatureClassifier(feature_dim, TARGETS).to(device)
+    model = StudyFeatureClassifier(
+        feature_dim,
+        TARGETS,
+        dropout=args.dropout,
+        attention_hidden_dim=args.attention_hidden_dim,
+    ).to(device)
     optimizer = build_adamw(
         model,
         learning_rate=args.learning_rate,
@@ -141,6 +148,8 @@ def main() -> int:
                     "epoch": epoch,
                     "gold_macro_auc": None if not np.isfinite(score) else score,
                     "seed": args.seed,
+                    "dropout": args.dropout,
+                    "attention_hidden_dim": args.attention_hidden_dim,
                 },
             )
             temporary_oof = output / f"fold-{args.fold}-oof.parquet.tmp"

@@ -25,11 +25,21 @@ def main() -> int:
     parser.add_argument("--slices", type=int, default=12)
     parser.add_argument("--batch-size", type=int, default=128)
     parser.add_argument("--iterations", type=int, default=100)
+    parser.add_argument("--dropout", type=float)
+    parser.add_argument("--attention-hidden-dim", type=int)
     args = parser.parse_args()
     payload = load_checkpoint(args.checkpoint)
     model = StudyFeatureClassifier(
         int(payload["feature_dim"]),
         payload["target_names"],
+        dropout=(
+            float(payload.get("dropout", 0.2)) if args.dropout is None else args.dropout
+        ),
+        attention_hidden_dim=(
+            int(payload.get("attention_hidden_dim", 128))
+            if args.attention_hidden_dim is None
+            else args.attention_hidden_dim
+        ),
     )
     model.load_state_dict(payload["model_state"], strict=True)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

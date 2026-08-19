@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
@@ -86,49 +87,69 @@ def main() -> int:
         "--audit",
         str(output / "fold_audit.json"),
     )
+    experiments_dir = output / "experiments"
+    for experiment in training["experiments"]:
+        experiment_output = experiments_dir / str(experiment["id"])
+        run(
+            repository,
+            "scripts/train_cv.py",
+            "--training-table",
+            str(training_table),
+            "--features",
+            str(features),
+            "--output-dir",
+            str(experiment_output),
+            "--n-splits",
+            str(training["n_splits"]),
+            "--epochs",
+            str(training["epochs"]),
+            "--batch-size",
+            str(training["batch_size"]),
+            "--learning-rate",
+            str(training["learning_rate"]),
+            "--weight-decay",
+            str(training["weight_decay"]),
+            "--gold-weight",
+            str(experiment["gold_weight"]),
+            "--patience",
+            str(training["patience"]),
+            "--dropout",
+            str(experiment["dropout"]),
+            "--attention-hidden-dim",
+            str(experiment["attention_hidden_dim"]),
+            "--seed",
+            str(experiment["seed"]),
+        )
+        run(
+            repository,
+            "scripts/generate_oof.py",
+            "--input-dir",
+            str(experiment_output),
+            "--training-table",
+            str(training_table),
+            "--output",
+            str(experiment_output / "oof.parquet"),
+        )
+        run(
+            repository,
+            "scripts/evaluate_oof.py",
+            "--oof",
+            str(experiment_output / "oof.parquet"),
+            "--output",
+            str(experiment_output / "oof_metrics.json"),
+        )
+        metrics = json.loads((experiment_output / "oof_metrics.json").read_text())
+        if metrics.get("macro_auc") is not None and float(metrics["macro_auc"]) >= float(
+            training["stop_macro_auc"]
+        ):
+            break
     run(
         repository,
-        "scripts/train_cv.py",
-        "--training-table",
-        str(training_table),
-        "--features",
-        str(features),
+        "scripts/select_best_experiment.py",
+        "--experiments-dir",
+        str(experiments_dir),
         "--output-dir",
         str(output),
-        "--n-splits",
-        str(training["n_splits"]),
-        "--epochs",
-        str(training["epochs"]),
-        "--batch-size",
-        str(training["batch_size"]),
-        "--learning-rate",
-        str(training["learning_rate"]),
-        "--weight-decay",
-        str(training["weight_decay"]),
-        "--gold-weight",
-        str(training["gold_weight"]),
-        "--patience",
-        str(training["patience"]),
-        "--seed",
-        str(training["seed"]),
-    )
-    run(
-        repository,
-        "scripts/generate_oof.py",
-        "--input-dir",
-        str(output),
-        "--training-table",
-        str(training_table),
-        "--output",
-        str(output / "oof.parquet"),
-    )
-    run(
-        repository,
-        "scripts/evaluate_oof.py",
-        "--oof",
-        str(output / "oof.parquet"),
-        "--output",
-        str(output / "oof_metrics.json"),
     )
     run(
         repository,

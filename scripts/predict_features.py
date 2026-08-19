@@ -50,7 +50,12 @@ def main() -> int:
         if target_names is not None and names != target_names:
             raise ValueError("Checkpoint target orders differ")
         target_names = names
-        model = StudyFeatureClassifier(int(payload["feature_dim"]), names).to(device)
+        model = StudyFeatureClassifier(
+            int(payload["feature_dim"]),
+            names,
+            dropout=float(payload.get("dropout", 0.2)),
+            attention_hidden_dim=int(payload.get("attention_hidden_dim", 128)),
+        ).to(device)
         model.load_state_dict(payload["model_state"], strict=True)
         model.eval()
         fold_predictions: list[np.ndarray] = []
