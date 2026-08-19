@@ -1,7 +1,7 @@
 # Compute, Data, and Kaggle Execution Strategy
 
-Last updated: 2026-08-13  
-Status: Stage 1 environment architecture implemented; no Kaggle job launched
+Last updated: 2026-08-19  
+Status: authenticated Kaggle execution active; full metadata scan running
 
 ## Operating model
 
@@ -43,31 +43,22 @@ name. `scripts/inspect_environment.py` validates and resolves the mount first.
 
 ## Current Kaggle connectivity
 
-Inspected on 2026-08-13:
-
-- Exposed Codex tools named for Kaggle: none
-- Configured MCP resources/templates for Kaggle: none
-- Local Kaggle CLI: version 2.0.0
-- Kaggle CLI authentication: unavailable
-- Conventional local Kaggle credential files: absent
-- Competition file listing: rejected because authentication is required
-- Competition notebook linked from this project: none discovered
-
-No Kaggle operation, download, notebook creation, training job, or submission
-was attempted. Credentials must never enter Git, configuration, notebooks, logs,
-or chat output.
+Kaggle CLI authentication is configured outside the repository with restricted
+file permissions. The private source dataset and private kernels are live.
+Completed jobs include environment/table audit and both rules-only and semantic
+report labeling. The full DICOM metadata job is running. Credentials are never
+stored in Git, configuration, notebooks, artifacts, or logs.
 
 ## Deliberate Kaggle kernel stages
 
 The starting separation is:
 
-1. Audit kernel: CSV schemas, DICOM headers, data-quality and study inventories
-2. Report-label kernel: cached local/offline multilingual weak labels
-3. Image-preprocessing kernel: selected series/slices and a measured compact
-   representation
-4. Fold kernels: one independently resumable kernel per fold
-5. OOF/ensemble kernel: metrics, correlations, constrained selection
-6. Final inference kernel: test preprocessing, inference, strict validation,
+1. Stage 2 metadata: resumable DICOM-header Parquet parts
+2. Stage 2 aggregate: ordered series and study inventories
+3. Stage 3 semantic: offline multilingual report probabilities
+4. Stage 4 features: one frozen DINOv2-small pass over selected 2.5D stacks
+5. Stage 5 CV: grouped folds, five attention heads, OOF, calibration
+6. Final inference: hidden-test ordering/features, ensemble, validated
    `submission.csv`
 
 Stages may be merged only after profiling shows that doing so improves runtime
@@ -118,4 +109,3 @@ Awaiting approval.
 ```
 
 Only explicit user approval authorizes spending a submission.
-

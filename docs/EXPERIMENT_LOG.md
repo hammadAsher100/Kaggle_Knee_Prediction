@@ -58,3 +58,31 @@ metrics are recorded only after actual execution.
 - Decision: KEEP
 - Notes: local and Kaggle execution boundaries are synthetic-testable; actual
   Kaggle mount discovery awaits an authenticated notebook runtime
+
+### 2026-08-19 — STAGE3-RULES-V1
+
+- Type: report weak-label development
+- Data: 4,407 reports; 58 gold studies per target
+- Model: multilingual terminology, negation, and uncertainty rules
+- Gold macro ROC AUC: 0.6692662575
+- Public leaderboard: N/A — no submission made
+- Decision: INVESTIGATE — useful for several structural findings, weak for OA
+  and effusion
+
+### 2026-08-19 — STAGE3-SEMANTIC-BLEND-V1
+
+- Type: offline report weak-label development
+- Primary change: multilingual MiniLM sentence similarities blended with rules
+- Candidate rule weights: 0, 0.25, 0.5, 0.75, 1
+- Selected development weight: 0.5
+- Gold development macro ROC AUC: 0.6881405384
+- Per-target AUC: ACL 0.8487; MCL 0.8481; medial meniscus 0.7200; lateral
+  meniscus 0.6783; medial OA 0.4969; lateral OA 0.6557; PF OA 0.5714;
+  effusion 0.5801; synovitis 0.7276; Baker's 0.7210; contusion 0.6579;
+  fracture 0.7521
+- Runtime: about 134 seconds in the Kaggle T4 job including model load and
+  notebook finalization
+- Public leaderboard: N/A — no submission made
+- Decision: KEEP as the current weak-label source
+- Leakage control: image CV reselects blend weight within each development
+  partition; the global 0.6881 value is not represented as unbiased image OOF

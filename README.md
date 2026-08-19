@@ -5,15 +5,22 @@ Abnormality Detection challenge.
 
 ## Current status
 
-Stage 1 is complete and now enforces a laptop-control-plane/Kaggle-data-plane
-architecture. Local mode is limited to at most 20 representative studies;
-Kaggle mode discovers and validates the mounted competition input before use.
-No full dataset was downloaded, no model was trained, and no submission was
-made.
+The project now has an executable offline pipeline from raw competition DICOMs
+to a validated `submission.csv`:
 
-The competition dataset was not present in the workspace during the Stage 1
-audit. Exact targets, identifiers, schemas, and rules therefore remain
-deliberately unset. See `docs/COMPETITION_AUDIT.md` for the evidence boundary.
+1. resumable pixel-free DICOM metadata extraction and aggregation;
+2. private multilingual report labeling (rules plus MiniLM embeddings);
+3. patient-aware grouped folds with nested weak-label blending;
+4. geometry-ordered 2.5D stacks and frozen DINOv2-small feature extraction;
+5. five-fold plane-aware attention heads, gold-only OOF metrics, and
+   cross-fitted monotonic calibration;
+6. hidden-test metadata extraction, five-model inference, and strict submission
+   validation.
+
+Full-data work runs on Kaggle; only compact audits and model artifacts are
+downloaded locally. The Stage 2 metadata scan is currently executing. No
+competition submission has been made, and submission remains an explicit user
+approval boundary.
 
 ## Layout
 
@@ -35,7 +42,7 @@ must still enter through YAML configuration or explicit command-line values.
 
 ## Reproducibility contract
 
-Each future experiment must record its merged configuration, configuration
+Each experiment records its merged configuration, configuration
 hash, seed, package and hardware details, Git commit (when available), fold,
 target order, runtime, and checkpoint metadata. OOF and leaderboard results
 must never be invented or inferred.

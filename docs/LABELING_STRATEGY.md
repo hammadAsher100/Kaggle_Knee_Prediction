@@ -1,15 +1,19 @@
 # Labeling Strategy
 
-Stage 3 has not started because report files are unavailable, but official
-target names are now verified: ACL, MCL, Medial Meniscus, Lateral Meniscus,
-Medial OA, Lateral OA, PF OA, Effusion, Synovitis, Baker's, Contusion, and
-Fracture.
+Stage 3 is complete. The report corpus contains 4,407 studies, with 58 gold
+labels per target. The privacy-preserving language audit found Latin, Cyrillic,
+and Greek scripts and substantial English, Spanish, Turkish, Greek, Croatian,
+German, Bulgarian, Dutch, and French content.
 
-Only a small subset of studies has per-condition labels. Missing target cells
-are unknown, not negative. The future report pipeline is constrained to local
-execution and will version
-and cache Unicode/section normalization, language identification, terminology,
-negation, uncertainty, evidence spans, per-target probability, binary weak
-label, confidence, and source. Terminology work remains deferred until Stage 3
-review despite the now-known schema. Competition report text will not be sent
-to a hosted inference service.
+Missing target cells remain unknown and are never converted to negatives. The
+current labeler combines multilingual sentence embeddings from the offline
+Apache-licensed `paraphrase-multilingual-MiniLM-L12-v2` artifact with explicit
+terminology, negation, and uncertainty rules. Gold labels always override weak
+targets.
+
+The rules-only gold macro AUC was 0.6693. The 50/50 semantic/rule blend reached
+0.6881 on the same 58-study development subset. This is a development metric,
+not image-model OOF. To prevent that blend selection from leaking validation
+gold labels, every image CV fold reselects its rule weight using only the other
+folds' gold rows. No raw report text is sent to hosted inference services or
+included in downloaded logs.

@@ -79,3 +79,22 @@ Populate the `paths` and `schema` sections of `configs/data.yaml` after adding
 the official files. Run table and DICOM audits first, inspect identifier
 relationships, select the strongest grouping key, then run fold generation. A
 fold artifact produced before that inspection is invalid.
+
+## Full-data execution addendum — 2026-08-19
+
+Authenticated inspection established 4,407 unique training studies and 58
+observed gold labels per target; reports are complete. The five competition
+CSV files were downloaded locally as lightweight, Git-ignored audit inputs.
+The approximately 569.76 GB DICOM corpus remains on Kaggle.
+
+The full training-header scan is running in the private
+`rsna-knee-stage-2-metadata` kernel. It emits atomic Parquet parts every 25
+studies plus a completion manifest and failure ledger. The dependent aggregate
+kernel will not start unless that manifest reports `complete: true`. PatientID,
+AccessionNumber, vendor/model, field strength, geometry reliability, series
+sizes, and descriptor missingness remain pending until aggregation completes.
+
+The current report-language audit contains no raw report text. Its heuristic
+counts are: English 1,737; Spanish 681; Turkish 544; Greek 321; Croatian 285;
+German 256; Bulgarian 220; Dutch 151; French 81; unknown 131. These language
+counts are routing diagnostics, not clinical labels.
