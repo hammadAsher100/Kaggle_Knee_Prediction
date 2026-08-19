@@ -14,6 +14,7 @@ if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.labeling.language_detection import detect_language
+from src.labeling.report_parser import normalize_report
 
 
 def parse_args() -> argparse.Namespace:
@@ -31,6 +32,9 @@ def main() -> int:
     normalized = reports.fillna("").astype(str)
     detections = [detect_language(report) for report in normalized]
     lengths = normalized.str.len()
+    canonical = normalized.map(lambda value: normalize_report(value).casefold())
+    duplicate_counts = canonical[canonical.ne("")].value_counts()
+    duplicate_groups = duplicate_counts[duplicate_counts > 1]
     payload = {
         "row_count": int(len(reports)),
         "missing_reports": int(missing.sum()),
@@ -48,6 +52,13 @@ def main() -> int:
             for quantile, value in lengths.quantile(
                 [0, 0.1, 0.25, 0.5, 0.75, 0.9, 0.99, 1]
             ).items()
+        },
+        "exact_duplicate_reports": {
+            "group_count": int(len(duplicate_groups)),
+            "study_count": int(duplicate_groups.sum()),
+            "maximum_group_size": (
+                int(duplicate_groups.max()) if not duplicate_groups.empty else 0
+            ),
         },
     }
     output = Path(args.output).expanduser().resolve()

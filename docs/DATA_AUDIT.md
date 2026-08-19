@@ -99,6 +99,12 @@ counts are: English 1,737; Spanish 681; Turkish 544; Greek 321; Croatian 285;
 German 256; Bulgarian 220; Dutch 151; French 81; unknown 131. These language
 counts are routing diagnostics, not clinical labels.
 
+After Unicode/whitespace normalization and case folding, 52 exact duplicate
+report-text groups contain 198 studies; the largest group contains 37. These
+may include generic reporting templates, so report equality is audited but is
+not assumed to be a patient identifier. DICOM PatientID remains the preferred
+cross-study grouping evidence.
+
 The actual `train.csv` columns do not include `PatientSex`, despite its presence
 in the supplied dataset description. The training and subgroup-audit code treats
 that field as optional and records it as unavailable; it does not impute sex.

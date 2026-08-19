@@ -86,3 +86,17 @@ metrics are recorded only after actual execution.
 - Decision: KEEP as the current weak-label source
 - Leakage control: image CV reselects blend weight within each development
   partition; the global 0.6881 value is not represented as unbiased image OOF
+
+### 2026-08-19 — STAGE4-DINOV2-SMOKE
+
+- Type: real-DICOM pipeline validation; not a predictive experiment
+- Data: three example test studies, 15 series, 557 slices
+- Geometry: 15/15 series ordered from orientation/position metadata
+- Header failures and empty series: 0
+- Sampled representation: 12 three-slice stacks per study, DINOv2-small,
+  384-dimensional FP16 embeddings
+- Pixel-decode valid-stack fraction: 1.0
+- Feature shape: `(3, 12, 384)`; all values finite
+- Runtime: 2.34 seconds for study extraction after model load; about 52 seconds
+  for the whole Kaggle kernel
+- Decision: KEEP — full feature extraction is authorized after metadata audit
