@@ -39,6 +39,15 @@ def _mounts(group: str) -> list[Path]:
     return values
 
 
+def _artifact_roots() -> list[Path]:
+    names = (
+        "rsna-knee-stage2-aggregate-artifacts",
+        "rsna-knee-semantic-labels",
+        "rsna-knee-stage4-features",
+    )
+    return [INPUT_ROOT / name for name in names if (INPUT_ROOT / name).is_dir()]
+
+
 def main() -> int:
     repository = _one(
         [
@@ -56,16 +65,17 @@ def main() -> int:
         ],
         "competition train.csv",
     )
+    artifact_roots = [INPUT_ROOT / "kernels", *(_artifact_roots())]
     inventory = _one(
-        list((INPUT_ROOT / "kernels").rglob("train_study_inventory.parquet")),
+        [path for root in artifact_roots if root.is_dir() for path in root.rglob("train_study_inventory.parquet")],
         "study inventory",
     )
     semantic = _one(
-        list((INPUT_ROOT / "kernels").rglob("report_labels_semantic_v1.parquet")),
+        [path for root in artifact_roots if root.is_dir() for path in root.rglob("report_labels_semantic_v1.parquet")],
         "semantic labels",
     )
     features = _one(
-        list((INPUT_ROOT / "kernels").rglob("features.npz")),
+        [path for root in artifact_roots if root.is_dir() for path in root.rglob("features.npz")],
         "DINOv2 features",
     )
     config = yaml.safe_load((repository / "configs" / "frozen_dinov2.yaml").read_text())

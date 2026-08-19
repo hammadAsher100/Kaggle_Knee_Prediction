@@ -9,7 +9,9 @@
   "enable_internet": false,
   "machine_shape": "NvidiaTeslaT4",
   "dataset_sources": [
-    "hammadasher/rsna-knee-source"
+    "hammadasher/rsna-knee-source",
+    "hammadasher/rsna-knee-stage2-aggregate-artifacts",
+    "hammadasher/rsna-knee-semantic-labels"
   ],
   "competition_sources": [
     "rsna-knee-abnormality-detection"
