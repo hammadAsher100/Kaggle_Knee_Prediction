@@ -8,7 +8,8 @@
   "enable_gpu": false,
   "enable_internet": false,
   "dataset_sources": [
-    "hammadasher/rsna-knee-source"
+    "hammadasher/rsna-knee-source",
+    "hammadasher/rsna-knee-stage2-artifacts"
   ],
   "competition_sources": [
     "rsna-knee-abnormality-detection"

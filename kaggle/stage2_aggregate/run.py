@@ -29,8 +29,18 @@ def discover_repository() -> Path:
 
 
 def discover_completed_parts() -> Path:
-    kernel_root = INPUT_ROOT / "kernels"
-    manifests = sorted(kernel_root.rglob("train_metadata_manifest.json"))
+    search_roots = [INPUT_ROOT / "kernels", INPUT_ROOT / "datasets"]
+    attached_artifacts = INPUT_ROOT / "rsna-knee-stage2-artifacts"
+    if attached_artifacts.is_dir():
+        search_roots.append(attached_artifacts)
+    manifests = sorted(
+        {
+            path
+            for root in search_roots
+            if root.is_dir()
+            for path in root.rglob("train_metadata_manifest.json")
+        }
+    )
     completed = []
     for manifest in manifests:
         payload = json.loads(manifest.read_text(encoding="utf-8"))
