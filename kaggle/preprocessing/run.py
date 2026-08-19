@@ -4,22 +4,24 @@ from __future__ import annotations
 
 import importlib.util
 import os
-import shutil
 import subprocess
 import sys
 from pathlib import Path
-from zipfile import ZipFile
 
 INPUT_ROOT = Path("/kaggle/input")
-WORKSPACE = Path("/kaggle/working/rsna-knee")
 REQUIRED_MODULES = ("yaml", "numpy", "pandas", "pyarrow", "pydicom")
 
 
-def run(*arguments: str) -> None:
+def run(repository: Path, *arguments: str) -> None:
     """Run one repository command and stop immediately on failure."""
     command = [sys.executable, *arguments]
     print("+", " ".join(command), flush=True)
-    subprocess.run(command, cwd=WORKSPACE, check=True)
+    subprocess.run(
+        command,
+        cwd=repository,
+        env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"},
+        check=True,
+    )
 
 
 def discover_source_dataset() -> Path:
@@ -52,28 +54,18 @@ def discover_source_dataset() -> Path:
 def main() -> int:
     source_dataset = discover_source_dataset()
 
-    WORKSPACE.mkdir(parents=True, exist_ok=True)
-    if (source_dataset / "pyproject.toml").is_file():
-        shutil.copytree(source_dataset, WORKSPACE, dirs_exist_ok=True)
-    else:
-        archives = sorted(source_dataset.glob("*.zip"))
-        if len(archives) != 1:
-            raise RuntimeError(
-                "Expected an unpacked repository or exactly one archive in "
-                f"{source_dataset}, found {len(archives)} archives"
-            )
-        with ZipFile(archives[0]) as archive:
-            archive.extractall(WORKSPACE)
-
-    os.chdir(WORKSPACE)
-    sys.path.insert(0, str(WORKSPACE))
-
     missing = [name for name in REQUIRED_MODULES if importlib.util.find_spec(name) is None]
     if missing:
         raise RuntimeError("Kaggle image is missing required modules: " + ", ".join(missing))
 
-    run("scripts/inspect_environment.py", "--config", "configs/kaggle.yaml")
     run(
+        source_dataset,
+        "scripts/inspect_environment.py",
+        "--config",
+        "configs/kaggle.yaml",
+    )
+    run(
+        source_dataset,
         "scripts/audit_data.py",
         "--config",
         "configs/kaggle.yaml",
