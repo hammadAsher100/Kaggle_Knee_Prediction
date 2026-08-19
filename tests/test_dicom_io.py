@@ -11,6 +11,7 @@ from pydicom.uid import ExplicitVRLittleEndian, MRImageStorage, generate_uid
 from src.data.metadata import (
     build_study_inventory,
     extract_metadata,
+    extract_metadata_parts,
     metadata_audit,
     read_dicom_metadata,
     spatial_slice_coordinate,
@@ -109,3 +110,39 @@ def test_read_dicom_metadata_preserves_relative_path(tmp_path: Path) -> None:
     assert record["dicom_path"] == "slice.no_extension"
     assert record["Rows"] == 64
     assert record["Columns"] == 80
+
+
+def test_streaming_metadata_writes_atomic_study_parts(tmp_path: Path) -> None:
+    root = tmp_path / "dicoms"
+    study_ids = [generate_uid(), generate_uid()]
+    for index, study_uid in enumerate(study_ids):
+        series_uid = generate_uid()
+        series_dir = root / study_uid / series_uid
+        series_dir.mkdir(parents=True)
+        _write_dicom(
+            series_dir / f"slice-{index}.dcm",
+            study_uid=study_uid,
+            series_uid=series_uid,
+            sop_uid=generate_uid(),
+            instance=1,
+            z_position=float(index),
+        )
+
+    output_dir = tmp_path / "parts"
+    result = extract_metadata_parts(
+        root,
+        study_ids,
+        output_dir,
+        studies_per_part=1,
+        max_runtime_seconds=60,
+        safety_reserve_seconds=1,
+    )
+    parts = sorted(output_dir.glob("part-*.parquet"))
+    metadata = pd.concat([pd.read_parquet(path) for path in parts], ignore_index=True)
+
+    assert result.complete is True
+    assert result.completed_studies == 2
+    assert result.readable_dicoms == 2
+    assert len(parts) == 2
+    assert sorted(metadata["StudyInstanceUID"].tolist()) == sorted(study_ids)
+    assert Path(result.manifest_path).is_file()

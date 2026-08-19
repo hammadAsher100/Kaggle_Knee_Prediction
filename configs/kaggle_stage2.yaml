@@ -1,6 +1,10 @@
 # Stage 2 output overlay. Load after base.yaml, data.yaml, and kaggle.yaml.
 paths:
   table_audit_json: /kaggle/working/stage2_artifacts/table_audit.json
+  train_metadata_parts_dir: /kaggle/working/stage2_artifacts/train_metadata_parts
+  test_metadata_parts_dir: /kaggle/working/stage2_artifacts/test_metadata_parts
+  train_metadata_manifest: /kaggle/working/stage2_artifacts/train_metadata_manifest.json
+  test_metadata_manifest: /kaggle/working/stage2_artifacts/test_metadata_manifest.json
   train_metadata_output: /kaggle/working/stage2_artifacts/train_dicom_metadata.parquet
   test_metadata_output: /kaggle/working/stage2_artifacts/test_dicom_metadata.parquet
   train_metadata_failures: /kaggle/working/stage2_artifacts/train_dicom_failures.jsonl
