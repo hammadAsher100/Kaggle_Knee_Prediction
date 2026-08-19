@@ -57,7 +57,10 @@ def main() -> int:
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     from transformers import AutoModel
 
-    studies = _read_table(args.study_table)
+    study_table = _read_table(args.study_table)
+    if "StudyInstanceUID" not in study_table:
+        raise ValueError("study table is missing StudyInstanceUID")
+    studies = study_table[["StudyInstanceUID"]].copy()
     manifest = pd.read_parquet(args.series_manifest)
     output = Path(args.output_dir)
     output.mkdir(parents=True, exist_ok=True)

@@ -150,6 +150,16 @@ def main() -> int:
         "--output",
         str(output / "oof_analysis.json"),
     )
+    run(
+        repository,
+        "scripts/profile_model.py",
+        "--checkpoint",
+        str(output / "fold-0.pt"),
+        "--output",
+        str(output / "model_profile.json"),
+        "--slices",
+        str(config["features"]["max_series"] * config["features"]["slices_per_series"]),
+    )
     return 0
 
 
