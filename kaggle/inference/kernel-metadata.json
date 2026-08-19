@@ -15,7 +15,7 @@
     "rsna-knee-abnormality-detection"
   ],
   "kernel_sources": [
-    "hammadasher/rsna-knee-stage-5-cv"
+    "hammadasher/rsna-knee-stage-5-cross-validation"
   ],
   "model_sources": [
     "metaresearch/dinov2/PyTorch/small/1"

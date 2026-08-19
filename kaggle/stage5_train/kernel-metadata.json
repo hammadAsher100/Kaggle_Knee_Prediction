@@ -1,5 +1,5 @@
 {
-  "id": "hammadasher/rsna-knee-stage-5-cv",
+  "id": "hammadasher/rsna-knee-stage-5-cross-validation",
   "title": "RSNA Knee Stage 5 Cross Validation",
   "code_file": "run.py",
   "language": "python",
