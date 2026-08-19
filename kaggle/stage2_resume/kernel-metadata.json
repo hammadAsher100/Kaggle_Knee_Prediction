@@ -1,6 +1,6 @@
 {
-  "id": "hammadasher/rsna-knee-stage-2-aggregate",
-  "title": "RSNA Knee Stage 2 Aggregate",
+  "id": "hammadasher/rsna-knee-stage-2-resume",
+  "title": "RSNA Knee Stage 2 Metadata Resume",
   "code_file": "run.py",
   "language": "python",
   "kernel_type": "script",
@@ -14,7 +14,7 @@
     "rsna-knee-abnormality-detection"
   ],
   "kernel_sources": [
-    "hammadasher/rsna-knee-stage-2-resume"
+    "hammadasher/rsna-knee-stage-2-metadata"
   ],
   "model_sources": []
 }
