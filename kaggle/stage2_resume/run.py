@@ -31,10 +31,18 @@ def discover_repository() -> Path:
 
 
 def discover_prior_manifest() -> Path:
+    search_roots = [INPUT_ROOT / "kernels", INPUT_ROOT / "datasets"]
+    attached_artifacts = INPUT_ROOT / "rsna-knee-stage2-artifacts"
+    if attached_artifacts.is_dir():
+        search_roots.append(attached_artifacts)
     manifests = sorted(
-        path
-        for path in (INPUT_ROOT / "kernels").rglob("train_metadata_manifest.json")
-        if (path.parent / "train_metadata_parts").is_dir()
+        {
+            path
+            for root in search_roots
+            if root.is_dir()
+            for path in root.rglob("train_metadata_manifest.json")
+            if (path.parent / "train_metadata_parts").is_dir()
+        }
     )
     if len(manifests) != 1:
         raise RuntimeError(f"Expected one prior Stage 2 manifest, found {len(manifests)}")
