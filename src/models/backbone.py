@@ -22,7 +22,8 @@ class DinoV2Backbone(nn.Module):
         for parameter in self.model.parameters():
             parameter.requires_grad = False
         layers = getattr(getattr(self.model, "encoder", None), "layer", [])
-        for layer in list(layers)[-max(int(trainable_blocks), 0) :]:
+        unfrozen = list(layers)[-int(trainable_blocks) :] if trainable_blocks > 0 else []
+        for layer in unfrozen:
             for parameter in layer.parameters():
                 parameter.requires_grad = True
 

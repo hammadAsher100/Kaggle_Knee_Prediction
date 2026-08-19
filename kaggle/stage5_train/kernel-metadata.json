@@ -1,0 +1,23 @@
+{
+  "id": "hammadasher/rsna-knee-stage-5-cv",
+  "title": "RSNA Knee Stage 5 Cross Validation",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": false,
+  "machine_shape": "NvidiaTeslaT4",
+  "dataset_sources": [
+    "hammadasher/rsna-knee-source"
+  ],
+  "competition_sources": [
+    "rsna-knee-abnormality-detection"
+  ],
+  "kernel_sources": [
+    "hammadasher/rsna-knee-stage-2-aggregate",
+    "hammadasher/rsna-knee-stage-3-semantic",
+    "hammadasher/rsna-knee-stage-4-dinov2-features"
+  ],
+  "model_sources": []
+}
