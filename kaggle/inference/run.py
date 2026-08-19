@@ -119,6 +119,8 @@ def main() -> int:
         str(output / "test_features" / "features.npz"),
         "--checkpoint-dir",
         str(checkpoint_dir),
+        "--calibration",
+        str(checkpoint_dir / "calibration.json"),
         "--output",
         str(predictions),
     )

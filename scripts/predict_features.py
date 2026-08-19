@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -15,6 +16,7 @@ if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.data.dataset import FrozenFeatureDataset
+from src.inference.calibration import apply_multilabel_calibration
 from src.models.model_factory import StudyFeatureClassifier
 from src.training.checkpoint import load_checkpoint
 
@@ -25,6 +27,7 @@ def main() -> int:
     parser.add_argument("--features", required=True)
     parser.add_argument("--checkpoint-dir", required=True)
     parser.add_argument("--output", required=True)
+    parser.add_argument("--calibration")
     parser.add_argument("--batch-size", type=int, default=128)
     args = parser.parse_args()
     studies = (
@@ -62,6 +65,9 @@ def main() -> int:
         ensemble = values if ensemble is None else ensemble + values
     assert ensemble is not None and target_names is not None
     ensemble /= len(checkpoints)
+    if args.calibration:
+        parameters = json.loads(Path(args.calibration).read_text(encoding="utf-8"))
+        ensemble = apply_multilabel_calibration(ensemble, target_names, parameters)
     output_frame = pd.DataFrame(
         ensemble,
         columns=[f"{target}__prediction" for target in target_names],

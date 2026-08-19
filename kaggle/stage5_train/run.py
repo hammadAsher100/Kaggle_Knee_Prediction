@@ -116,6 +116,18 @@ def main() -> int:
         "--output",
         str(output / "oof_metrics.json"),
     )
+    run(
+        repository,
+        "scripts/calibrate_oof.py",
+        "--oof",
+        str(output / "oof.parquet"),
+        "--output-oof",
+        str(output / "oof_calibrated.parquet"),
+        "--parameters",
+        str(output / "calibration.json"),
+        "--audit",
+        str(output / "calibration_audit.json"),
+    )
     return 0
 
 
