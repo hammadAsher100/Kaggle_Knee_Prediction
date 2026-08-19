@@ -16,7 +16,11 @@ def test_training_table_overrides_weak_targets_and_groups_patients() -> None:
         }
     )
     labels = pd.DataFrame(
-        {"StudyInstanceUID": studies, "ACL__probability": np.linspace(0.05, 0.95, 10)}
+        {
+            "StudyInstanceUID": studies,
+            "ACL__semantic_probability": np.linspace(0.05, 0.95, 10),
+            "ACL__rule_probability": np.linspace(0.1, 0.9, 10),
+        }
     )
     inventory = pd.DataFrame(
         {
@@ -35,6 +39,7 @@ def test_training_table_overrides_weak_targets_and_groups_patients() -> None:
     assert folded.loc[0, "ACL__train"] == 1.0
     assert folded.loc[1, "ACL__train"] == 0.0
     assert folded.loc[2, "ACL__train"] == folded.loc[2, "ACL__weak"]
+    assert "ACL__train_fold_0" in folded
     assert folded.groupby("PatientID")["fold"].nunique().max() == 1
     assert audit["grouping_source"] == "PatientID"
 

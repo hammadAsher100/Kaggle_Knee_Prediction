@@ -61,6 +61,11 @@ def main() -> int:
     args = parse_args()
     seed_everything(args.seed + args.fold)
     table = pd.read_parquet(args.training_table)
+    for target in TARGETS:
+        fold_target = f"{target}__train_fold_{args.fold}"
+        if fold_target not in table:
+            raise ValueError(f"Training table is missing nested target {fold_target}")
+        table[f"{target}__train"] = table[fold_target]
     train_frame = table.loc[table["fold"] != args.fold].reset_index(drop=True)
     valid_frame = table.loc[table["fold"] == args.fold].reset_index(drop=True)
     if train_frame.empty or valid_frame.empty:

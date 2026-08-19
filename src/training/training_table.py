@@ -8,6 +8,7 @@ from typing import Any
 import pandas as pd
 
 from src.training.cv_split import fold_audit, make_multilabel_group_folds
+from src.training.metrics import multilabel_roc_auc
 
 
 def choose_group_column(
@@ -48,6 +49,7 @@ def build_training_table(
     n_splits: int = 5,
     seed: int = 20260812,
     restarts: int = 64,
+    candidate_rule_weights: Sequence[float] = (0.0, 0.25, 0.5, 0.75, 1.0),
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
     """Merge targets, override weak labels with gold, and assign grouped folds."""
     inputs = (
@@ -70,11 +72,17 @@ def build_training_table(
         raise AssertionError("Training-table merge changed row count")
     proxy_columns: list[str] = []
     for target in target_columns:
-        weak_column = f"{target}__probability"
-        if weak_column not in merged:
-            raise ValueError(f"Semantic labels are missing {weak_column}")
+        semantic_column = f"{target}__semantic_probability"
+        rule_column = f"{target}__rule_probability"
+        missing_label_columns = [
+            column for column in (semantic_column, rule_column) if column not in merged
+        ]
+        if missing_label_columns:
+            raise ValueError(f"Semantic labels are missing {missing_label_columns}")
         gold = pd.to_numeric(merged[target], errors="coerce")
-        weak = pd.to_numeric(merged[weak_column], errors="coerce")
+        semantic = pd.to_numeric(merged[semantic_column], errors="coerce")
+        rule = pd.to_numeric(merged[rule_column], errors="coerce")
+        weak = 0.5 * semantic + 0.5 * rule
         if weak.isna().any() or not weak.between(0, 1).all():
             raise ValueError(f"Weak probabilities are invalid for {target}")
         merged[f"{target}__gold"] = gold
@@ -94,6 +102,49 @@ def build_training_table(
         seed=seed,
         restarts=restarts,
     )
+    nested_blends: dict[str, Any] = {}
+    gold_columns = [f"{target}__gold" for target in target_columns]
+    for validation_fold in range(n_splits):
+        development = folded["fold"].ne(validation_fold)
+        truth = folded.loc[development, gold_columns].to_numpy(float)
+        candidate_scores: dict[str, float | None] = {}
+        candidate_probabilities: dict[float, pd.DataFrame] = {}
+        for raw_weight in candidate_rule_weights:
+            weight = float(raw_weight)
+            probabilities = pd.DataFrame(
+                {
+                    target: (
+                        (1.0 - weight) * folded[f"{target}__semantic_probability"]
+                        + weight * folded[f"{target}__rule_probability"]
+                    )
+                    for target in target_columns
+                },
+                index=folded.index,
+            )
+            candidate_probabilities[weight] = probabilities
+            metric = multilabel_roc_auc(
+                truth,
+                probabilities.loc[development, target_columns].to_numpy(float),
+                target_columns,
+            )
+            candidate_scores[str(weight)] = metric.macro_auc
+        valid_scores = {
+            float(weight): score
+            for weight, score in candidate_scores.items()
+            if score is not None
+        }
+        selected_weight = max(valid_scores, key=valid_scores.get) if valid_scores else 0.5
+        selected = candidate_probabilities[selected_weight]
+        for target in target_columns:
+            gold = folded[f"{target}__gold"]
+            folded[f"{target}__train_fold_{validation_fold}"] = gold.fillna(
+                selected[target]
+            ).astype("float32")
+        nested_blends[str(validation_fold)] = {
+            "selected_rule_weight": selected_weight,
+            "development_gold_macro_auc": valid_scores.get(selected_weight),
+            "candidate_scores": candidate_scores,
+        }
     audit = fold_audit(
         folded,
         target_columns=[f"{target}__gold" for target in target_columns],
@@ -105,6 +156,7 @@ def build_training_table(
         {
             "grouping_source": group_source,
             "quality": quality.to_dict(),
+            "nested_label_blends": nested_blends,
             "gold_study_count": int(
                 folded[[f"{target}__gold_mask" for target in target_columns]]
                 .max(axis=1)
