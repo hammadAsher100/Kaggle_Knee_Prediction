@@ -1,0 +1,23 @@
+{
+  "id": "hammadasher/rsna-knee-strict-image-ensemble",
+  "title": "RSNA Knee Strict Image Ensemble",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": false,
+  "machine_shape": "NvidiaTeslaT4",
+  "dataset_sources": [
+    "hammadasher/rsna-knee-source",
+    "hammadasher/rsna-knee-strict-v9-checkpoints",
+    "hammadasher/rsna-knee-hybrid-v10-checkpoints"
+  ],
+  "competition_sources": [
+    "rsna-knee-abnormality-detection"
+  ],
+  "kernel_sources": [],
+  "model_sources": [
+    "metaresearch/dinov2/PyTorch/small/1"
+  ]
+}

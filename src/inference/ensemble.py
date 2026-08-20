@@ -28,3 +28,34 @@ def weighted_probability_average(
         raise ValueError("Ensemble weights must be non-negative with positive sum")
     normalized = raw_weights / raw_weights.sum()
     return np.average(np.stack(arrays), axis=0, weights=normalized)
+
+
+def percentile_ranks(predictions: np.ndarray) -> np.ndarray:
+    """Convert each target column to average percentile ranks in `(0, 1]`."""
+    values = np.asarray(predictions, dtype=float)
+    if values.ndim != 2 or not np.isfinite(values).all():
+        raise ValueError("Predictions must be a finite two-dimensional matrix")
+    ranks = np.empty(values.shape, dtype=float)
+    for column in range(values.shape[1]):
+        column_values = values[:, column]
+        order = np.argsort(column_values, kind="stable")
+        sorted_values = column_values[order]
+        sorted_ranks = np.empty(len(order), dtype=float)
+        start = 0
+        while start < len(order):
+            stop = start + 1
+            while stop < len(order) and sorted_values[stop] == sorted_values[start]:
+                stop += 1
+            sorted_ranks[start:stop] = ((start + 1) + stop) / 2.0
+            start = stop
+        ranks[order, column] = sorted_ranks / len(order)
+    return ranks
+
+
+def weighted_rank_average(
+    predictions: Sequence[np.ndarray],
+    weights: Sequence[float] | None = None,
+) -> np.ndarray:
+    """Rank-normalize each model per target, then apply a weighted average."""
+    ranked = [percentile_ranks(values) for values in predictions]
+    return weighted_probability_average(ranked, weights)
