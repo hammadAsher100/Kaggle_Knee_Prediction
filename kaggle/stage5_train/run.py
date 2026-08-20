@@ -156,6 +156,8 @@ def main() -> int:
             str(experiment["seed"]),
             "--selection-mode",
             str(experiment["selection_mode"]),
+            "--architecture",
+            str(experiment["architecture"]),
         )
         run(
             repository,

@@ -13,7 +13,7 @@ import torch
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.models.model_factory import StudyFeatureClassifier
+from src.models.model_factory import build_feature_classifier
 from src.training.checkpoint import load_checkpoint
 from src.utils.hardware import runtime_metadata
 
@@ -29,7 +29,8 @@ def main() -> int:
     parser.add_argument("--attention-hidden-dim", type=int)
     args = parser.parse_args()
     payload = load_checkpoint(args.checkpoint)
-    model = StudyFeatureClassifier(
+    model = build_feature_classifier(
+        str(payload.get("architecture", "shared_attention")),
         int(payload["feature_dim"]),
         payload["target_names"],
         dropout=(

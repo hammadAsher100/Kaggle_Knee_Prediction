@@ -17,12 +17,13 @@ training:
   patience: 8
   stop_macro_auc: 1.0
   experiments:
-    - id: attention_fixed40_w2_d01_h64
+    - id: target_attention_fixed40_w2_d01_h64
       gold_weight: 2.0
       dropout: 0.1
       attention_hidden_dim: 64
       seed: 20260812
       selection_mode: fixed
+      architecture: target_attention
 
 calibration:
   method: positive_slope_platt

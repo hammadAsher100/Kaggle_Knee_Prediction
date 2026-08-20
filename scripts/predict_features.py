@@ -18,7 +18,7 @@ if __package__ in {None, ""}:
 from src.data.dataset import FrozenFeatureDataset
 from src.inference.calibration import apply_multilabel_calibration
 from src.inference.ensemble import weighted_probability_average
-from src.models.model_factory import StudyFeatureClassifier
+from src.models.model_factory import build_feature_classifier
 from src.training.checkpoint import load_checkpoint
 
 
@@ -50,7 +50,8 @@ def main() -> int:
         if target_names is not None and names != target_names:
             raise ValueError("Checkpoint target orders differ")
         target_names = names
-        model = StudyFeatureClassifier(
+        model = build_feature_classifier(
+            str(payload.get("architecture", "shared_attention")),
             int(payload["feature_dim"]),
             names,
             dropout=float(payload.get("dropout", 0.2)),

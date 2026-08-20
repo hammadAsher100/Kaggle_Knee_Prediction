@@ -16,7 +16,7 @@ if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.data.dataset import FrozenFeatureDataset
-from src.models.model_factory import StudyFeatureClassifier
+from src.models.model_factory import build_feature_classifier
 from src.training.checkpoint import save_checkpoint
 from src.training.optimizer import build_adamw
 from src.training.scheduler import build_warmup_cosine_scheduler
@@ -56,6 +56,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--attention-hidden-dim", type=int, default=128)
     parser.add_argument("--seed", type=int, default=20260812)
     parser.add_argument("--num-workers", type=int, default=2)
+    parser.add_argument(
+        "--architecture",
+        choices=("shared_attention", "target_attention"),
+        default="shared_attention",
+    )
     parser.add_argument(
         "--selection-mode",
         choices=("fixed", "gold_auc"),
@@ -99,7 +104,8 @@ def main() -> int:
     )
     feature_dim = int(train_dataset.features.shape[-1])
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = StudyFeatureClassifier(
+    model = build_feature_classifier(
+        args.architecture,
         feature_dim,
         TARGETS,
         dropout=args.dropout,
@@ -168,6 +174,7 @@ def main() -> int:
                     "seed": args.seed,
                     "dropout": args.dropout,
                     "attention_hidden_dim": args.attention_hidden_dim,
+                    "architecture": args.architecture,
                 },
             )
             temporary_oof = output / f"fold-{args.fold}-oof.parquet.tmp"
@@ -194,6 +201,7 @@ def main() -> int:
                 "seed": args.seed,
                 "dropout": args.dropout,
                 "attention_hidden_dim": args.attention_hidden_dim,
+                "architecture": args.architecture,
                 "selection_mode": args.selection_mode,
             },
         )

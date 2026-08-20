@@ -23,6 +23,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--attention-hidden-dim", type=int, default=128)
     parser.add_argument("--seed", type=int, default=20260812)
     parser.add_argument("--selection-mode", choices=("fixed", "gold_auc"), default="fixed")
+    parser.add_argument(
+        "--architecture",
+        choices=("shared_attention", "target_attention"),
+        default="shared_attention",
+    )
     return parser.parse_args()
 
 
@@ -60,6 +65,8 @@ def main() -> int:
             str(args.seed),
             "--selection-mode",
             args.selection_mode,
+            "--architecture",
+            args.architecture,
         ]
         subprocess.run(command, check=True)
     return 0
