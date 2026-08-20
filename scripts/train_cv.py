@@ -22,6 +22,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dropout", type=float, default=0.2)
     parser.add_argument("--attention-hidden-dim", type=int, default=128)
     parser.add_argument("--seed", type=int, default=20260812)
+    parser.add_argument("--selection-mode", choices=("fixed", "gold_auc"), default="fixed")
     return parser.parse_args()
 
 
@@ -57,6 +58,8 @@ def main() -> int:
             str(args.attention_hidden_dim),
             "--seed",
             str(args.seed),
+            "--selection-mode",
+            args.selection_mode,
         ]
         subprocess.run(command, check=True)
     return 0

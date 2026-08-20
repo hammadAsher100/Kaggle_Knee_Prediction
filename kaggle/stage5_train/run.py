@@ -96,7 +96,9 @@ def main() -> int:
         [path for root in artifact_roots if root.is_dir() for path in root.rglob("features.npz")],
         "DINOv2 features",
     )
-    config = yaml.safe_load((repository / "configs" / "frozen_dinov2.yaml").read_text())
+    config = yaml.safe_load(
+        (repository / "configs" / "frozen_dinov2_strict.yaml").read_text()
+    )
     training = config["training"]
     output = Path("/kaggle/working/stage5_cv")
     output.mkdir(parents=True, exist_ok=True)
@@ -147,6 +149,8 @@ def main() -> int:
             str(experiment["attention_hidden_dim"]),
             "--seed",
             str(experiment["seed"]),
+            "--selection-mode",
+            str(experiment["selection_mode"]),
         )
         run(
             repository,

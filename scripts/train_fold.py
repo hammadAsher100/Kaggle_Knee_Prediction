@@ -56,6 +56,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--attention-hidden-dim", type=int, default=128)
     parser.add_argument("--seed", type=int, default=20260812)
     parser.add_argument("--num-workers", type=int, default=2)
+    parser.add_argument(
+        "--selection-mode",
+        choices=("fixed", "gold_auc"),
+        default="fixed",
+        help=(
+            "Use a predeclared final epoch for valid OOF evaluation. gold_auc is a legacy "
+            "diagnostic mode that selects on the evaluated fold and is optimistically biased."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -124,14 +133,23 @@ def main() -> int:
             scheduler=scheduler,
             gold_weight=args.gold_weight,
         )
-        oof, metrics = predict_loader(model, valid_loader, device=device, target_names=TARGETS)
-        score = metrics.macro_auc if metrics and metrics.macro_auc is not None else -float("inf")
         record = {
             "epoch": epoch,
             "train_loss": epoch_result["loss"],
-            "gold_macro_auc": None if not np.isfinite(score) else score,
-            "per_target_gold_auc": metrics.per_target if metrics else None,
         }
+        if args.selection_mode == "fixed":
+            history.append(record)
+            print(json.dumps(record, allow_nan=False), flush=True)
+            continue
+
+        oof, metrics = predict_loader(model, valid_loader, device=device, target_names=TARGETS)
+        score = metrics.macro_auc if metrics and metrics.macro_auc is not None else -float("inf")
+        record.update(
+            {
+                "gold_macro_auc": None if not np.isfinite(score) else score,
+                "per_target_gold_auc": metrics.per_target if metrics else None,
+            }
+        )
         history.append(record)
         print(json.dumps(record, allow_nan=False), flush=True)
         if best_epoch < 0 or score > best_score + 1e-6:
@@ -159,10 +177,46 @@ def main() -> int:
             stale_epochs += 1
         if stale_epochs >= args.patience:
             break
+    if args.selection_mode == "fixed":
+        oof, metrics = predict_loader(model, valid_loader, device=device, target_names=TARGETS)
+        score = metrics.macro_auc if metrics and metrics.macro_auc is not None else -float("inf")
+        best_epoch = args.epochs - 1
+        best_score = score
+        save_checkpoint(
+            output / f"fold-{args.fold}.pt",
+            {
+                "model_state": model.state_dict(),
+                "feature_dim": feature_dim,
+                "target_names": TARGETS,
+                "fold": args.fold,
+                "epoch": best_epoch,
+                "gold_macro_auc": None if not np.isfinite(score) else score,
+                "seed": args.seed,
+                "dropout": args.dropout,
+                "attention_hidden_dim": args.attention_hidden_dim,
+                "selection_mode": args.selection_mode,
+            },
+        )
+        temporary_oof = output / f"fold-{args.fold}-oof.parquet.tmp"
+        oof.to_parquet(temporary_oof, index=False)
+        temporary_oof.replace(output / f"fold-{args.fold}-oof.parquet")
+        history.append(
+            {
+                "evaluation": "final_fixed_epoch",
+                "epoch": best_epoch,
+                "gold_macro_auc": None if not np.isfinite(score) else score,
+                "per_target_gold_auc": metrics.per_target if metrics else None,
+            }
+        )
     metrics_path = output / f"fold-{args.fold}-history.json"
     metrics_path.write_text(
         json.dumps(
-            {"fold": args.fold, "best_epoch": best_epoch, "history": history},
+            {
+                "fold": args.fold,
+                "best_epoch": best_epoch,
+                "selection_mode": args.selection_mode,
+                "history": history,
+            },
             indent=2,
             allow_nan=False,
         )
