@@ -14,8 +14,6 @@
   "competition_sources": [
     "rsna-knee-abnormality-detection"
   ],
-  "kernel_sources": [
-    "hammadasher/rsna-knee-stage-2-metadata-resume"
-  ],
+  "kernel_sources": [],
   "model_sources": []
 }

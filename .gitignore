@@ -33,6 +33,7 @@ kaggle/input/
 
 # Competition data and generated artifacts must never be committed.
 /data/
+/artifacts/*/
 *.dcm
 *.dicom
 *.pt

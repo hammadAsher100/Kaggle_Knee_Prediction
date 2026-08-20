@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
@@ -35,7 +36,7 @@ def discover_prior_manifest() -> Path:
     attached_artifacts = INPUT_ROOT / "rsna-knee-stage2-artifacts"
     if attached_artifacts.is_dir():
         search_roots.append(attached_artifacts)
-    manifests = sorted(
+    candidates = sorted(
         {
             path
             for root in search_roots
@@ -44,6 +45,14 @@ def discover_prior_manifest() -> Path:
             if (path.parent / "train_metadata_parts").is_dir()
         }
     )
+    manifests = []
+    for manifest in candidates:
+        payload = json.loads(manifest.read_text(encoding="utf-8"))
+        parts = manifest.parent / "train_metadata_parts"
+        expected_parts = int(payload.get("part_count_this_run", 0))
+        actual_parts = len(list(parts.glob("part-*.parquet")))
+        if expected_parts > 0 and actual_parts == expected_parts:
+            manifests.append(manifest)
     if len(manifests) != 1:
         raise RuntimeError(f"Expected one prior Stage 2 manifest, found {len(manifests)}")
     return manifests[0]

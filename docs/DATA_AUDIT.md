@@ -1,14 +1,15 @@
 # Data Audit
 
-Status: Stage 2 implementation verified; real-data execution blocked  
-Last access check: 2026-08-12
+Status: full Stage 2 metadata scan and aggregation complete
+Last verified: 2026-08-20
 
 ## Actual observed competition data
 
-No competition table, report, DICOM file, or sample submission is present.
-Official material now establishes the schemas, hierarchy, targets, and sparse
-label design documented in `COMPETITION_AUDIT.md`; actual counts and
-distributions remain unavailable.
+Authenticated execution established 4,407 training studies, 24,371 series,
+and 819,078 DICOM instances. All 177 metadata parts are present and non-empty.
+The aggregate inventory contains all 4,407 study IDs, and all series have
+geometry sufficient for ordering. There are 58 gold-labeled studies per
+target, while all 4,407 studies have reports.
 
 ## Implemented audit pipeline
 
@@ -56,11 +57,8 @@ among known labels.
 
 ## Local storage decision
 
-Drive D had 11.1 GiB free on 2026-08-12. The authenticated Kaggle file listing
-needed to obtain the exact archive size was unavailable. A blind full download
-is therefore rejected. Stage 2 extraction should run against Kaggle-mounted
-competition data, after which only compact audit Parquet/JSON artifacts should
-be copied locally.
+The approximately 569.76 GB DICOM corpus remains on Kaggle. Only compact
+metadata, features, checkpoints, and evaluation artifacts are copied locally.
 
 ## Verification fixtures
 
@@ -73,12 +71,17 @@ balance, subgroup audits, and explicit leakage assertions.
 Synthetic counts and labels are test fixtures only and are not competition
 findings.
 
-## Execution gate
+## Execution result and completeness gate
 
-Populate the `paths` and `schema` sections of `configs/data.yaml` after adding
-the official files. Run table and DICOM audits first, inspect identifier
-relationships, select the strongest grouping key, then run fold generation. A
-fold artifact produced before that inspection is invalid.
+The first aggregate artifact was incomplete: it contained only 34 of 177
+metadata parts, 850 of 4,407 studies, and consequently valid image features for
+only about 26% of studies. The associated 0.5317 image OOF result is invalid and
+superseded. Aggregate and resume jobs now compare the discovered Parquet part
+count with the completed metadata manifest and fail closed on a mismatch.
+
+The corrected aggregate contains all 177 parts and all 4,407 studies. Corrected
+DINOv2 extraction produced a `(4407, 12, 384)` tensor with a 0.999962 valid-stack
+fraction and finite values throughout.
 
 ## Full-data execution addendum — 2026-08-19
 
@@ -87,12 +90,10 @@ observed gold labels per target; reports are complete. The five competition
 CSV files were downloaded locally as lightweight, Git-ignored audit inputs.
 The approximately 569.76 GB DICOM corpus remains on Kaggle.
 
-The full training-header scan is running in the private
-`rsna-knee-stage-2-metadata` kernel. It emits atomic Parquet parts every 25
-studies plus a completion manifest and failure ledger. The dependent aggregate
-kernel will not start unless that manifest reports `complete: true`. PatientID,
-AccessionNumber, vendor/model, field strength, geometry reliability, series
-sizes, and descriptor missingness remain pending until aggregation completes.
+The full training-header scan completed in the private
+`rsna-knee-stage-2-metadata` kernel. It emitted atomic Parquet parts every 25
+studies plus a completion manifest and failure ledger. Dependent jobs require
+both `complete: true` and the exact declared part count.
 
 The current report-language audit contains no raw report text. Its heuristic
 counts are: English 1,737; Spanish 681; Turkish 544; Greek 321; Croatian 285;

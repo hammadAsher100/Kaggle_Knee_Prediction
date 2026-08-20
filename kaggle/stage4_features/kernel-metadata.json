@@ -15,9 +15,7 @@
   "competition_sources": [
     "rsna-knee-abnormality-detection"
   ],
-  "kernel_sources": [
-    "hammadasher/rsna-knee-stage-2-aggregate"
-  ],
+  "kernel_sources": [],
   "model_sources": [
     "metaresearch/dinov2/PyTorch/small/1"
   ]

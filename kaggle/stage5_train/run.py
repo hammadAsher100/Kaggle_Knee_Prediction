@@ -75,11 +75,21 @@ def main() -> int:
     )
     artifact_roots = [INPUT_ROOT / "kernels", *(_artifact_roots())]
     inventory = _one(
-        [path for root in artifact_roots if root.is_dir() for path in root.rglob("train_study_inventory.parquet")],
+        [
+            path
+            for root in artifact_roots
+            if root.is_dir()
+            for path in root.rglob("train_study_inventory.parquet")
+        ],
         "study inventory",
     )
     semantic = _one(
-        [path for root in artifact_roots if root.is_dir() for path in root.rglob("report_labels_semantic_v1.parquet")],
+        [
+            path
+            for root in artifact_roots
+            if root.is_dir()
+            for path in root.rglob("report_labels_semantic_v1.parquet")
+        ],
         "semantic labels",
     )
     features = _one(

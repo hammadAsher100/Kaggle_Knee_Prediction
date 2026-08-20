@@ -100,3 +100,54 @@ metrics are recorded only after actual execution.
 - Runtime: 2.34 seconds for study extraction after model load; about 52 seconds
   for the whole Kaggle kernel
 - Decision: KEEP — full feature extraction is authorized after metadata audit
+
+### 2026-08-20 — STAGE4-FULL-COVERAGE-CORRECTION
+
+- Type: data-artifact correction
+- Root cause: the first aggregate consumed only 34 of 177 metadata parts,
+  covering 850 of 4,407 studies; downstream placeholders made the first image
+  result invalid
+- Corrected metadata: 819,078 DICOM rows; 24,371 series; 4,407 studies; 177
+  non-empty parts
+- Corrected features: `(4407, 12, 384)` FP16; 0.999962 valid-stack fraction;
+  all values finite
+- Guard: aggregate and resume jobs now require the exact manifest part count
+- Decision: KEEP correction; RETRACT the earlier 0.5317 partial-data image score
+
+### 2026-08-20 — STAGE5-CORRECTED-IMAGE-CV
+
+- Type: full-data frozen-feature image cross-validation
+- Gold evaluation rows: 58 per target
+- Candidates: three plane-aware attention heads with different gold weights,
+  dropout, hidden dimensions, and seeds
+- Selected: `attention_w2_d01_h64`
+- Gold-only OOF macro ROC AUC: 0.6678028453
+- Bootstrap 95% interval: 0.6187806578 to 0.7139717237
+- Candidate macro AUCs: 0.6678028453, 0.6355716003, 0.6411136629
+- Public leaderboard: N/A — no submission made
+- Decision: KEEP as image component
+
+### 2026-08-20 — STAGE5-NESTED-MULTIMODAL-FUSION
+
+- Type: leakage-safe nested OOF fusion
+- Modalities: corrected image OOF, semantic report probability, rule report
+  probability
+- Selection: one simplex weight vector chosen on the development gold rows of
+  each outer fold, never on that fold's evaluated labels; grid step 0.05
+- Gold-only nested OOF macro ROC AUC: 0.7470527673
+- Per-target AUC: ACL 0.8824; MCL 0.9161; medial meniscus 0.7548; lateral
+  meniscus 0.6671; medial OA 0.6775; lateral OA 0.6867; PF OA 0.6422;
+  effusion 0.6373; synovitis 0.7539; Baker's 0.8225; contusion 0.6910;
+  fracture 0.8333
+- Public leaderboard: N/A — no submission made
+- Decision: KEEP as current validated best
+- Caveat: only 58 gold rows; high statistical uncertainty. The 0.7597
+  non-nested sensitivity blend is optimistic and is not a validated score.
+
+### 2026-08-20 — STAGE5-REJECTED-FUSION-AND-PROBE
+
+- Target-specific nested fusion, grid step 0.1: macro AUC 0.7233101249
+- Nested masked-mean DINOv2 ridge probe: macro AUC 0.6066855785
+- Public leaderboard: N/A — no submission made
+- Decision: REJECT both; the extra target-wise flexibility is unstable with 58
+  labels, and the linear probe underperforms the attention image head

@@ -45,7 +45,13 @@ def discover_completed_parts() -> Path:
     for manifest in manifests:
         payload = json.loads(manifest.read_text(encoding="utf-8"))
         parts = manifest.parent / "train_metadata_parts"
-        if payload.get("complete") is True and parts.is_dir():
+        expected_parts = int(payload.get("part_count_this_run", 0))
+        actual_parts = len(list(parts.glob("part-*.parquet"))) if parts.is_dir() else 0
+        if (
+            payload.get("complete") is True
+            and expected_parts > 0
+            and actual_parts == expected_parts
+        ):
             completed.append(parts)
     if len(completed) != 1:
         raise RuntimeError(
