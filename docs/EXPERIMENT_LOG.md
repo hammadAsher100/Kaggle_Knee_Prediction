@@ -207,3 +207,18 @@ metrics are recorded only after actual execution.
   three-model variants
 - Inference: both checkpoint families are versioned as private Kaggle datasets;
   reports are not used at inference
+
+### 2026-08-20 — STAGE6-INFERENCE-VALIDATION
+
+- In-house candidate: fixed 50/50 raw-probability ensemble backed by the strict
+  0.7465859983 image OOF
+- Example test: 3 studies; 15 series; 557 slices
+- Geometry ordering: 15/15 series
+- Header failures and empty series: 0
+- Valid feature-stack fraction: 1.0
+- Submission validation: 3 rows, 13 columns, exact sample ID/column order,
+  finite values in `[0, 1]`
+- Public-frontier candidate: credited private fork completed with 20 members and
+  produced a second strictly valid example-test submission
+- Public leaderboard: N/A — neither candidate submitted
+- Decision: READY FOR EXPLICIT SUBMISSION APPROVAL

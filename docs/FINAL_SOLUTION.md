@@ -31,6 +31,12 @@ variance and are not leaderboard scores. A credited private fork of a leading
 public 20-member DINO/RadImageNet rank ensemble also produced a strictly valid
 example-test submission artifact, but it has not been submitted.
 
+The in-house two-model inference kernel also completed on the example test:
+3 studies, 15 geometry-ordered series, 557 slices, zero header failures, and a
+1.0 valid-stack fraction. Its `submission.csv` exactly matches the required
+3-row, 13-column sample schema. During scoring, Kaggle replaces the example test
+with the hidden test. Neither candidate has been submitted automatically.
+
 The final code kernel independently orders hidden-test DICOMs, extracts the
 same features, loads all five checkpoints with Internet disabled, and writes a
 strictly validated `submission.csv`. It does not submit automatically.
