@@ -42,7 +42,6 @@ def _mounts(group: str) -> list[Path]:
 def _artifact_roots() -> list[Path]:
     names = (
         "rsna-knee-stage2-aggregate-artifacts",
-        "rsna-knee-semantic-labels",
         "rsna-knee-stage4-features",
     )
     roots = [INPUT_ROOT / name for name in names if (INPUT_ROOT / name).is_dir()]
@@ -83,14 +82,9 @@ def main() -> int:
         ],
         "study inventory",
     )
-    semantic = _one(
-        [
-            path
-            for root in artifact_roots
-            if root.is_dir()
-            for path in root.rglob("report_labels_semantic_v1.parquet")
-        ],
-        "semantic labels",
+    external_labels = _one(
+        list(INPUT_ROOT.rglob("report_labels_v4hybrid.csv")),
+        "public hybrid report labels",
     )
     features = _one(
         [path for root in artifact_roots if root.is_dir() for path in root.rglob("features.npz")],
@@ -102,6 +96,17 @@ def main() -> int:
     training = config["training"]
     output = Path("/kaggle/working/stage5_cv")
     output.mkdir(parents=True, exist_ok=True)
+    semantic = output / "report_labels_external.parquet"
+    run(
+        repository,
+        "scripts/normalize_external_report_labels.py",
+        "--train-csv",
+        str(train_csv),
+        "--external-labels",
+        str(external_labels),
+        "--output",
+        str(semantic),
+    )
     training_table = output / "training_table.parquet"
     run(
         repository,
