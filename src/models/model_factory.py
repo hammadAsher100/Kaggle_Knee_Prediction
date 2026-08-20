@@ -134,7 +134,7 @@ class TargetAttentionFeatureClassifier(nn.Module):
         self.dropout = nn.Dropout(dropout)
         self.classifier_weight = nn.Parameter(torch.empty(len(self.target_names), combined_dim))
         self.classifier_bias = nn.Parameter(torch.zeros(len(self.target_names)))
-        nn.init.xavier_uniform_(self.classifier_weight)
+        nn.init.normal_(self.classifier_weight, mean=0.0, std=0.02)
 
     def forward(
         self,
