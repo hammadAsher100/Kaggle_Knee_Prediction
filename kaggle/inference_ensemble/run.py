@@ -33,27 +33,53 @@ def run(repository: Path, *arguments: str) -> None:
     )
 
 
+def _mounts(group: str) -> list[Path]:
+    values = list(INPUT_ROOT.iterdir())
+    grouped = INPUT_ROOT / group
+    if grouped.is_dir():
+        values.extend(path for path in grouped.iterdir() if path.is_dir())
+        if group == "datasets":
+            values.extend(grouped.glob("*/*"))
+    return values
+
+
 def main() -> int:
     repository = _one(
-        list(INPUT_ROOT.rglob("pyproject.toml")),
-        "repository pyproject",
-    ).parent
+        [
+            path
+            for path in _mounts("datasets")
+            if (path / "pyproject.toml").is_file() and (path / "src").is_dir()
+        ],
+        "repository source",
+    )
     test_csv = _one(
-        [path for path in INPUT_ROOT.rglob("test.csv") if (path.parent / "test_series").is_dir()],
+        [
+            path / "test.csv"
+            for path in _mounts("competitions")
+            if (path / "test.csv").is_file() and (path / "test_series").is_dir()
+        ],
         "competition test.csv",
     )
     model_path = _one(
         [
             path.parent
-            for path in INPUT_ROOT.rglob("config.json")
+            for path in (INPUT_ROOT / "models").rglob("config.json")
             if "dinov2" in str(path).lower() and (path.parent / "pytorch_model.bin").is_file()
         ],
         "DINOv2 model",
     )
+    checkpoint_names = {
+        "rsna-knee-strict-v9-checkpoints",
+        "rsna-knee-hybrid-v10-checkpoints",
+    }
+    checkpoint_roots = [
+        path for path in _mounts("datasets") if path.name in checkpoint_names
+    ]
     checkpoint_dirs = sorted(
         {
             path.parent.resolve()
-            for path in INPUT_ROOT.rglob("best_experiment.json")
+            for root in checkpoint_roots
+            for path in root.rglob("best_experiment.json")
             if len(list(path.parent.glob("fold-*.pt"))) == 5
         }
     )
