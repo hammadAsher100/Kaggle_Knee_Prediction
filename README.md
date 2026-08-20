@@ -20,10 +20,10 @@ to a validated `submission.csv`:
 Full-data work runs on Kaggle; only compact audits and model artifacts are
 downloaded locally. The complete Stage 2 scan covers 819,078 DICOM instances,
 24,371 series, and all 4,407 training studies. Corrected DINOv2 features cover
-99.996% of planned stacks. The best leakage-safe local result is a nested
-image/report fusion with gold-only macro ROC AUC 0.7471; this is not a Kaggle
-leaderboard score. No competition submission has been made, and submission
-remains an explicit user approval boundary.
+99.996% of planned stacks. The best deployable leakage-safe local result is an
+equal-probability ensemble of two strict image models with gold-only macro ROC
+AUC 0.7466; this is not a Kaggle leaderboard score. No competition submission
+has been made, and submission remains an explicit user approval boundary.
 
 ## Layout
 

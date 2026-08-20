@@ -17,13 +17,19 @@ overrides and fold-nested blend selection. Selection uses gold-only macro ROC
 AUC. Final probabilities average the five fold heads and apply conservative
 positive-slope Platt calibration fitted on OOF gold predictions.
 
-On the corrected complete feature artifact, the selected image head scores
-0.6678 gold-only OOF macro ROC AUC. A leakage-safe nested simplex blend of image,
-semantic-report, and rule-report predictions scores 0.7471. Blend weights are
-selected using only the development portion of each outer fold. Because only
-58 studies have gold labels, this estimate has high variance and is not a
-leaderboard score. A target-specific blend (0.7233) and nested ridge probe
-(0.6067) were rejected.
+The original checkpoint selection repeatedly inspected the evaluated fold's
+gold AUC and was replaced by fixed-epoch training. The corrected original-teacher
+image model scores 0.6595. Replacing the training teacher with validated public
+CC0 hybrid report labels raises strict image-only OOF macro ROC AUC to 0.7292.
+An equal-probability ensemble of both independently valid image models scores
+0.7466. Reports are used only as training supervision; they are unavailable at
+test inference. Target-specific attention (0.7045), rank averaging (0.7212),
+and a ridge probe (0.6067) were rejected for the macro submission.
+
+Because only 58 studies have gold labels, all local estimates have high
+variance and are not leaderboard scores. A credited private fork of a leading
+public 20-member DINO/RadImageNet rank ensemble also produced a strictly valid
+example-test submission artifact, but it has not been submitted.
 
 The final code kernel independently orders hidden-test DICOMs, extracts the
 same features, loads all five checkpoints with Internet disabled, and writes a

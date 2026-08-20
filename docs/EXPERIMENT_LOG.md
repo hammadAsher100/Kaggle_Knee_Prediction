@@ -114,7 +114,7 @@ metrics are recorded only after actual execution.
 - Guard: aggregate and resume jobs now require the exact manifest part count
 - Decision: KEEP correction; RETRACT the earlier 0.5317 partial-data image score
 
-### 2026-08-20 — STAGE5-CORRECTED-IMAGE-CV
+### 2026-08-20 — STAGE5-CORRECTED-IMAGE-CV — SUPERSEDED
 
 - Type: full-data frozen-feature image cross-validation
 - Gold evaluation rows: 58 per target
@@ -125,9 +125,12 @@ metrics are recorded only after actual execution.
 - Bootstrap 95% interval: 0.6187806578 to 0.7139717237
 - Candidate macro AUCs: 0.6678028453, 0.6355716003, 0.6411136629
 - Public leaderboard: N/A — no submission made
-- Decision: KEEP as image component
+- Factual correction: checkpoint selection repeatedly observed the evaluated
+  fold's gold AUC. The 0.6678 value is biased and superseded by the strict
+  fixed-epoch result below.
+- Decision: RETRACT as a valid OOF estimate
 
-### 2026-08-20 — STAGE5-NESTED-MULTIMODAL-FUSION
+### 2026-08-20 — STAGE5-NESTED-MULTIMODAL-FUSION — DIAGNOSTIC ONLY
 
 - Type: leakage-safe nested OOF fusion
 - Modalities: corrected image OOF, semantic report probability, rule report
@@ -140,7 +143,11 @@ metrics are recorded only after actual execution.
   effusion 0.6373; synovitis 0.7539; Baker's 0.8225; contusion 0.6910;
   fracture 0.8333
 - Public leaderboard: N/A — no submission made
-- Decision: KEEP as current validated best
+- Factual correction: the image component inherited checkpoint-selection bias,
+  and test studies do not include reports. This result is neither a strict
+  image OOF estimate nor a deployable submission model.
+- Decision: RETRACT as a submission candidate; retain only as a modality
+  complementarity diagnostic
 - Caveat: only 58 gold rows; high statistical uncertainty. The 0.7597
   non-nested sensitivity blend is optimistic and is not a validated score.
 
@@ -151,3 +158,52 @@ metrics are recorded only after actual execution.
 - Public leaderboard: N/A — no submission made
 - Decision: REJECT both; the extra target-wise flexibility is unstable with 58
   labels, and the linear probe underperforms the attention image head
+
+### 2026-08-20 — STAGE5-STRICT-FIXED-EPOCH-BASELINE
+
+- Type: corrected image-only OOF evaluation
+- Correction: checkpoint duration fixed at 40 epochs; held-out fold gold is
+  evaluated once and never used for checkpoint selection
+- Teacher: original nested rule/MiniLM report labels
+- Gold-only OOF macro ROC AUC: 0.6594587777
+- Bootstrap 95% interval: 0.6035531879 to 0.7134158392
+- Public leaderboard: N/A — no submission made
+- Decision: KEEP as strict baseline; supersedes the biased 0.6678 result
+
+### 2026-08-20 — STAGE5-HYBRID-TEACHER-SHARED-ATTENTION
+
+- Type: strict image-only OOF evaluation
+- Primary change: validated CC0 hybrid report-label teacher covering all 4,407
+  studies; no report input at inference
+- Teacher sparse-gold audit macro AUC: 0.899131
+- Gold-only image OOF macro ROC AUC: 0.7292457997
+- Per-target AUC: ACL 0.6642; MCL 0.6508; medial meniscus 0.6502; lateral
+  meniscus 0.7491; medial OA 0.8372; lateral OA 0.8124; PF OA 0.7889;
+  effusion 0.8534; synovitis 0.7204; Baker's 0.7844; contusion 0.6815;
+  fracture 0.5583
+- Public leaderboard: N/A — no submission made
+- Decision: KEEP
+
+### 2026-08-20 — STAGE5-TARGET-ATTENTION
+
+- Type: strict image-only OOF architecture ablation
+- Primary change: separate slice-attention distribution and classifier for each
+  target; same hybrid teacher and deterministic folds as the shared head
+- Gold-only OOF macro ROC AUC: 0.7044570900
+- Public leaderboard: N/A — no submission made
+- Decision: REJECT from macro ensemble; useful target-specific gains do not
+  offset losses in MCL, contusion, and fracture
+
+### 2026-08-20 — STAGE5-STRICT-IMAGE-ENSEMBLE
+
+- Type: fixed, deployable OOF ensemble
+- Inputs: strict original-teacher shared head and strict hybrid-teacher shared
+  head
+- Equal probability macro ROC AUC: 0.7465859983
+- Equal rank macro ROC AUC: 0.7212415688
+- Three-model probability ensemble including target attention: 0.7376146069
+- Public leaderboard: N/A — no submission made
+- Decision: KEEP the fixed 50/50 probability ensemble; reject the rank and
+  three-model variants
+- Inference: both checkpoint families are versioned as private Kaggle datasets;
+  reports are not used at inference

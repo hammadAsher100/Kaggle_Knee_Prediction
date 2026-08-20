@@ -86,9 +86,11 @@ has not been submitted and therefore has no score under this account.
 ## Controlled experiment order
 
 1. Fixed-epoch shared attention with original teacher: 0.65946 — baseline.
-2. Fixed-epoch shared attention with hybrid teacher: running.
-3. Fixed-epoch target-specific attention with hybrid teacher: prepared.
-4. Rank/probability OOF ensemble of independently valid image models.
+2. Fixed-epoch shared attention with hybrid teacher: 0.72925 — keep.
+3. Fixed-epoch target-specific attention with hybrid teacher: 0.70446 — reject
+   for the macro ensemble.
+4. Equal probability ensemble of models 1 and 2: 0.74659 — current validated
+   best. Equal rank averaging scored 0.72124 and was rejected.
 5. If incremental gains justify the cost, extract six-slot, higher-coverage
    features and train target-aware heads.
 6. Fine-tune the last DINO blocks only after cached-head experiments establish
